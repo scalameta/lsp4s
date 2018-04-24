@@ -2,7 +2,7 @@ inThisBuild(
   List(
     version ~= { dynVer =>
       if (sys.env.contains("CI")) dynVer
-      else "SNAPSHOT" // only for local publishng
+      else "SNAPSHOT" // only for local publishing
     },
     scalaVersion := V.scala212,
     scalacOptions ++= List(
@@ -12,58 +12,12 @@ inThisBuild(
       // https://github.com/scala/bug/issues/10448
       "-Ywarn-unused-import"
     ),
-    organization := "io.github.lsp4s",
+    organization := "org.scalameta",
     licenses := Seq(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
     testFrameworks := new TestFramework("utest.runner.Framework") :: Nil,
     libraryDependencies += "com.lihaoyi" %% "utest" % "0.6.0" % Test,
-    homepage := Some(url("https://github.com/lsp4s/lsp4s")),
-    developers := List(
-      Developer(
-        "laughedelic",
-        "Alexey Alekhin",
-        "laughedelic@gmail.com",
-        url("https://github.com/laughedelic")
-      ),
-      Developer(
-        "gabro",
-        "Gabriele Petronella",
-        "gabriele@buildo.io",
-        url("https://github.com/gabro")
-      ),
-      Developer(
-        "jvican",
-        "Jorge Vicente Cantero",
-        "jorgevc@fastmail.es",
-        url("https://jvican.github.io/")
-      ),
-      Developer(
-        "olafurpg",
-        "Ólafur Páll Geirsson",
-        "olafurpg@gmail.com",
-        url("https://geirsson.com")
-      ),
-      Developer(
-        "ShaneDelmore",
-        "Shane Delmore",
-        "sdelmore@twitter.com",
-        url("http://delmore.io")
-      )
-    ),
-    scmInfo in ThisBuild := Some(
-      ScmInfo(
-        url("https://github.com/lsp4s/lsp4s"),
-        s"scm:git:git@github.com:lsp4s/lsp4s.git"
-      )
-    ),
-    releaseEarlyWith := BintrayPublisher,
-    releaseEarlyEnableSyncToMaven := false,
-    publishMavenStyle := true,
-    bintrayOrganization := Some("lsp4s"),
-    bintrayReleaseOnPublish := dynverGitDescribeOutput.value.isVersionStable,
-    pgpPublicRing := file("./travis/local.pubring.asc"),
-    pgpSecretRing := file("./travis/local.secring.asc"),
     // faster publishLocal:
     publishArtifact in packageDoc := sys.env.contains("CI"),
     publishArtifact in packageSrc := sys.env.contains("CI"),
@@ -93,6 +47,8 @@ lazy val noPublish = List(
 lazy val jsonrpc = project
   .settings(
     crossScalaVersions := List(V.scala211, V.scala212),
+    // NOTE: there are plans to drop most of these dependencies
+    // https://github.com/scalameta/metals/issues/285
     libraryDependencies ++= List(
       "ch.qos.logback" % "logback-classic" % "1.2.3",
       "com.beachape" %% "enumeratum" % V.enumeratum,

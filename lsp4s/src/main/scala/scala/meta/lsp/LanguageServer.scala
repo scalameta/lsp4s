@@ -1,4 +1,4 @@
-package org.langmeta.lsp
+package scala.meta.lsp
 
 import java.nio.ByteBuffer
 import scala.collection.concurrent.TrieMap
@@ -13,7 +13,7 @@ import monix.eval.Task
 import monix.execution.Cancelable
 import monix.execution.Scheduler
 import monix.reactive.Observable
-import org.langmeta.jsonrpc._
+import scala.meta.jsonrpc._
 
 final class LanguageServer(
     in: Observable[BaseProtocolMessage],

@@ -1,4 +1,4 @@
-package org.langmeta.lsp
+package scala.meta.lsp
 
 import java.io.OutputStream
 import java.nio.ByteBuffer
@@ -17,13 +17,13 @@ import monix.execution.Cancelable
 import monix.execution.atomic.Atomic
 import monix.execution.atomic.AtomicInt
 import monix.reactive.Observer
-import org.langmeta.jsonrpc.JsonRpcClient
-import org.langmeta.jsonrpc.MessageWriter
-import org.langmeta.jsonrpc.Notification
-import org.langmeta.jsonrpc.Request
-import org.langmeta.jsonrpc.RequestId
-import org.langmeta.jsonrpc.Response
-import org.langmeta.lsp.MonixEnrichments._
+import scala.meta.jsonrpc.JsonRpcClient
+import scala.meta.jsonrpc.MessageWriter
+import scala.meta.jsonrpc.Notification
+import scala.meta.jsonrpc.Request
+import scala.meta.jsonrpc.RequestId
+import scala.meta.jsonrpc.Response
+import scala.meta.lsp.MonixEnrichments._
 
 class LanguageClient(out: Observer[ByteBuffer], logger: Logger)
     extends JsonRpcClient {

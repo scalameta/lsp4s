@@ -1,4 +1,4 @@
-package org.langmeta.lsp
+package scala.meta.lsp
 
 import io.circe.Json
 import io.circe.generic.JsonCodec

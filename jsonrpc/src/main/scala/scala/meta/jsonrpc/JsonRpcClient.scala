@@ -1,4 +1,4 @@
-package org.langmeta.jsonrpc
+package scala.meta.jsonrpc
 
 import scala.concurrent.Future
 import io.circe.Decoder

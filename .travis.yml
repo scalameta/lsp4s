@@ -20,7 +20,7 @@ jobs:
       script:
         - sbt test
     - stage: release
-      script: ./bin/release.sh
+      script: sbt releaseEarly
 
 cache:
   directories:

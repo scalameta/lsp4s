@@ -1,4 +1,4 @@
-package org.langmeta.lsp
+package scala.meta.lsp
 
 import enumeratum.values._
 

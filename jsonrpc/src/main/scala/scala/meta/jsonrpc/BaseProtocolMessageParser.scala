@@ -1,4 +1,4 @@
-package org.langmeta.jsonrpc
+package scala.meta.jsonrpc
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets

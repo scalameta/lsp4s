@@ -1,4 +1,4 @@
-package org.langmeta.jsonrpc
+package scala.meta.jsonrpc
 
 import com.typesafe.scalalogging.LazyLogging
 import com.typesafe.scalalogging.Logger

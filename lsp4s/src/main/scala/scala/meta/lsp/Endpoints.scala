@@ -1,11 +1,11 @@
 // scalafmt: { maxColumn = 120 }
-package org.langmeta.lsp
+package scala.meta.lsp
 
-import org.langmeta.jsonrpc.Endpoint
-import org.langmeta.jsonrpc.Endpoint._
+import scala.meta.jsonrpc.Endpoint
+import scala.meta.jsonrpc.Endpoint._
 import io.circe.Json
-import org.langmeta.jsonrpc.JsonRpcClient
-import org.langmeta.jsonrpc.Response.Error
+import scala.meta.jsonrpc.JsonRpcClient
+import scala.meta.jsonrpc.Response.Error
 import monix.eval.Task
 
 object Lifecycle extends Lifecycle

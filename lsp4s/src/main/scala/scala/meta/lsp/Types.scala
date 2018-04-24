@@ -1,4 +1,4 @@
-package org.langmeta.lsp
+package scala.meta.lsp
 
 import cats.syntax.either._
 import io.circe.Decoder

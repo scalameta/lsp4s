@@ -1,4 +1,4 @@
-package org.langmeta.jsonrpc
+package scala.meta.jsonrpc
 
 import monix.eval.Task
 import io.circe.Json

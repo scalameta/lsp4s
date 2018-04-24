@@ -1,4 +1,4 @@
-package org.langmeta.jsonrpc
+package scala.meta.jsonrpc
 
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream

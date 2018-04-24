@@ -1,4 +1,4 @@
-package org.langmeta.lsp
+package scala.meta.lsp
 
 import java.io.IOException
 import java.io.OutputStream

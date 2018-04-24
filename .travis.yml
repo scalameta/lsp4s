@@ -39,6 +39,6 @@ before_cache:
 
 before_install:
   - if [ "$TRAVIS_BUILD_STAGE_NAME" = 'Release'  ]; then
-     # TODO(unpack secrets for publishing)
+      echo "TODO(unpack secrets for publishing)"
     fi
 

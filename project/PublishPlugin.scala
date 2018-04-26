@@ -27,7 +27,7 @@ object PublishPlugin extends AutoPlugin {
       } else {
         println("Setting up gpg")
         "git log HEAD~20..HEAD".!
-        (s"echo ${sys.env("PGP_SECRET")}" #| "base64 --decode" #| "pgp --import").!
+        (s"echo ${sys.env("PGP_SECRET")}" #| "base64 --decode" #| "gpg --import").!
         if (isSnap) {
           println("Publishing snapshot")
           "+publishSigned" ::

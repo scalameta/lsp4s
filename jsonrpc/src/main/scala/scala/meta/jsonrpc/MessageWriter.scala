@@ -7,7 +7,6 @@ import java.io.PrintWriter
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import scala.concurrent.Future
-import com.typesafe.scalalogging.Logger
 import io.circe.syntax._
 import monix.execution.Ack
 import monix.reactive.Observer

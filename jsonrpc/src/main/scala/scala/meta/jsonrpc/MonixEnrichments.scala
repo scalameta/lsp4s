@@ -1,9 +1,8 @@
-package scala.meta.lsp
+package scala.meta.jsonrpc
 
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.ByteBuffer
-import com.typesafe.scalalogging.Logger
 import monix.execution.Ack
 import monix.execution.Cancelable
 import monix.execution.Scheduler

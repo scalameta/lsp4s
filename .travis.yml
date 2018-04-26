@@ -38,7 +38,5 @@ before_cache:
   - rm -rf $HOME/.ivy2/local
 
 before_install:
-  - if [ "$TRAVIS_BUILD_STAGE_NAME" = 'Release'  ]; then
-      echo "TODO(unpack secrets for publishing)";
-    fi
+  - git fetch --tags
 

@@ -73,3 +73,9 @@ lazy val lsp4s = project
     crossScalaVersions := List(V.scala211, V.scala212)
   )
   .dependsOn(jsonrpc)
+
+inScope(Global)(
+  Seq(
+    PgpKeys.pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray())
+  )
+)

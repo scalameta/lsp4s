@@ -25,24 +25,18 @@ object PublishPlugin extends AutoPlugin {
         println(s"Skipping publish, branch=${sys.env.get("TRAVIS_BRANCH")}")
         s
       } else {
-        val base = s.put(
-          PgpKeys.pgpPassphrase.key,
-          sys.env
-            .get("PGP_PASSPHRASE")
-            .map(_.toCharArray())
-        )
         println("Setting up gpg")
         "git log HEAD~20..HEAD".!
         (s"echo ${sys.env("PGP_SECRET")}" #| "base64 --decode" #| "gpg --import").!
         if (isSnap) {
           println("Publishing snapshot")
           "+publishSigned" ::
-            base
+            s
         } else {
           println("Publishing release")
           "+publishSigned" ::
             "sonatypeReleaseAll" ::
-            base
+            s
         }
       }
     },

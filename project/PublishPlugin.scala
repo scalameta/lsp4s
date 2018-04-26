@@ -46,6 +46,7 @@ object PublishPlugin extends AutoPlugin {
     licenses := Seq(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
+    PgpKeys.pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray()),
     developers := List(
       Developer(
         "laughedelic",
@@ -78,8 +79,7 @@ object PublishPlugin extends AutoPlugin {
     publishTo := Some {
       if (isSnap.value) Opts.resolver.sonatypeSnapshots
       else Opts.resolver.sonatypeStaging
-    },
-    PgpKeys.pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray())
+    }
   )
 
 }

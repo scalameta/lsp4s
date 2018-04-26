@@ -1,8 +1,10 @@
 inThisBuild(
   List(
     version ~= { dynVer =>
-      if (sys.env.contains("CI")) dynVer
-      else "SNAPSHOT" // only for local publishing
+      if (sys.env.contains("CI")) {
+        if (sys.env.contains("TRAVIS_TAG")) dynVer
+        else dynVer + "-SNAPSHOT"
+      } else "SNAPSHOT" // only for local publishing
     },
     scalaVersion := V.scala212,
     scalacOptions ++= List(

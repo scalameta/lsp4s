@@ -12,8 +12,6 @@ object PublishPlugin extends AutoPlugin {
 
   private def isTravisSecure =
     sys.env.get("TRAVIS_SECURE_ENV_VARS").contains("true")
-  private def isCiPublish =
-    sys.env.get("CI_PUBLISH").contains("true")
 
   // isSnapshot does not work with sbt-dynver ~=
   private val isSnap = Def.setting {
@@ -23,7 +21,7 @@ object PublishPlugin extends AutoPlugin {
   override def globalSettings: Seq[Def.Setting[_]] = List(
     commands += Command.command("ci-release") { s =>
       val isSnap = this.isSnap.value
-      if (!isTravisSecure || !isCiPublish) {
+      if (!isTravisSecure) {
         println(s"Skipping publish, branch=${sys.env.get("TRAVIS_BRANCH")}")
         s
       } else {

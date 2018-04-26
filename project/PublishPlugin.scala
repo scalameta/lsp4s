@@ -13,14 +13,8 @@ object PublishPlugin extends AutoPlugin {
   private def isTravisSecure =
     sys.env.get("TRAVIS_SECURE_ENV_VARS").contains("true")
 
-  // isSnapshot does not work with sbt-dynver ~=
-  private val isSnap = Def.setting {
-    version.value.endsWith("SNAPSHOT")
-  }
-
   override def globalSettings: Seq[Def.Setting[_]] = List(
     commands += Command.command("ci-release") { s =>
-      val isSnap = this.isSnap.value
       if (!isTravisSecure) {
         println(s"Skipping publish, branch=${sys.env.get("TRAVIS_BRANCH")}")
         s
@@ -28,16 +22,10 @@ object PublishPlugin extends AutoPlugin {
         println("Setting up gpg")
         "git log HEAD~20..HEAD".!
         (s"echo ${sys.env("PGP_SECRET")}" #| "base64 --decode" #| "gpg --import").!
-        if (isSnap) {
-          println("Publishing snapshot")
-          "+publishSigned" ::
-            s
-        } else {
-          println("Publishing release")
-          "+publishSigned" ::
-            "sonatypeReleaseAll" ::
-            s
-        }
+        println("Publishing release")
+        "+publishSigned" ::
+          "sonatypeReleaseAll" ::
+          s
       }
     },
     organization := "org.scalameta",
@@ -76,7 +64,7 @@ object PublishPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = List(
     publishTo := Some {
-      if (isSnap.value) Opts.resolver.sonatypeSnapshots
+      if (isSnapshot.value) Opts.resolver.sonatypeSnapshots
       else Opts.resolver.sonatypeStaging
     }
   )

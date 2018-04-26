@@ -72,6 +72,7 @@ lazy val lsp4s = project
   )
   .dependsOn(jsonrpc)
 
+// For some reason, it doesn't work if this is defined in globalSettings in PublishPlugin.
 inScope(Global)(
   Seq(
     PgpKeys.pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray())

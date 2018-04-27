@@ -1,10 +1,9 @@
 package scala.meta.jsonrpc
 
-import io.circe.Json
-import io.circe.generic.JsonCodec
+import ujson.Js
 
-@JsonCodec case class ErrorObject(
+@json final case class ErrorObject(
     code: ErrorCode,
     message: String,
-    data: Option[Json]
+    data: Option[Js]
 )

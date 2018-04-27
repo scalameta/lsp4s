@@ -1,22 +1,22 @@
 // scalafmt: { maxColumn = 120 }
 package scala.meta.lsp
 
-import scala.meta.jsonrpc.Endpoint
+import scala.meta.jsonrpc._
 import scala.meta.jsonrpc.Endpoint._
-import io.circe.Json
 import scala.meta.jsonrpc.JsonRpcClient
 import scala.meta.jsonrpc.Response.Error
 import monix.eval.Task
+import ujson.Js
 
 object Lifecycle extends Lifecycle
 trait Lifecycle {
-  val initialized: Endpoint[Json, Unit] =
+  val initialized: Endpoint[Js, Unit] =
     notification("initialized")
   val initialize: Endpoint[InitializeParams, InitializeResult] =
     request[InitializeParams, InitializeResult]("initialize")
-  val shutdown: Endpoint[Json, Json] =
+  val shutdown: Endpoint[Js, Js] =
     request("shutdown")
-  val exit: Endpoint[Json, Unit] =
+  val exit: Endpoint[Js, Unit] =
     notification("exit")
 }
 
@@ -64,8 +64,8 @@ trait Workspace {
     notification[DidChangeConfigurationParams]("workspace/didChangeConfiguration")
   val didChangeWatchedFiles: Endpoint[DidChangeWatchedFilesParams, Unit] =
     notification[DidChangeWatchedFilesParams]("workspace/didChangeWatchedFiles")
-  val executeCommand: Endpoint[ExecuteCommandParams, Json] =
-    request[ExecuteCommandParams, Json]("workspace/executeCommand")
+  val executeCommand: Endpoint[ExecuteCommandParams, Js] =
+    request[ExecuteCommandParams, Js]("workspace/executeCommand")
   val symbol: Endpoint[WorkspaceSymbolParams, List[SymbolInformation]] =
     request[WorkspaceSymbolParams, List[SymbolInformation]]("workspace/symbol")
   val applyEdit: Endpoint[ApplyWorkspaceEditParams, ApplyWorkspaceEditResponse] =

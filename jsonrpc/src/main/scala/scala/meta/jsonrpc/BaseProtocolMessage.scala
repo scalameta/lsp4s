@@ -4,10 +4,11 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util
-import io.circe.Json
-import io.circe.syntax._
 import monix.reactive.Observable
-import scribe.Logger
+import scribe.LoggerSupport
+import ujson.Js
+import scala.meta.jsonrpc.pickle.write
+import scala.meta.internal.jsonrpc._
 
 final class BaseProtocolMessage(
     val header: Map[String, String],
@@ -33,9 +34,9 @@ object BaseProtocolMessage {
   val ContentLen = "Content-Length"
 
   def apply(msg: Message): BaseProtocolMessage =
-    fromJson(msg.asJson)
-  def fromJson(json: Json): BaseProtocolMessage =
-    fromBytes(json.noSpaces.getBytes(StandardCharsets.UTF_8))
+    fromJson(msg.asJsonEncoded)
+  def fromJson(json: Js): BaseProtocolMessage =
+    fromBytes(write(json).getBytes(StandardCharsets.UTF_8))
   def fromBytes(bytes: Array[Byte]): BaseProtocolMessage =
     new BaseProtocolMessage(
       Map("Content-Length" -> bytes.length.toString),
@@ -44,19 +45,19 @@ object BaseProtocolMessage {
 
   def fromInputStream(
       in: InputStream,
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     fromBytes(Observable.fromInputStream(in), logger)
 
   def fromBytes(
       in: Observable[Array[Byte]],
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     fromByteBuffers(in.map(ByteBuffer.wrap), logger)
 
   def fromByteBuffers(
       in: Observable[ByteBuffer],
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     in.executeWithFork.liftByOperator(new BaseProtocolMessageParser(logger))
 }

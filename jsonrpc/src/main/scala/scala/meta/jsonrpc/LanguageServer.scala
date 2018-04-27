@@ -1,9 +1,5 @@
 package scala.meta.jsonrpc
 
-import io.circe.Json
-import io.circe.jawn.parseByteBuffer
-import io.circe.syntax._
-import java.nio.ByteBuffer
 import monix.eval.Task
 import monix.execution.Cancelable
 import monix.execution.Scheduler
@@ -11,17 +7,19 @@ import monix.reactive.Observable
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.meta.internal.jsonrpc._
 import scala.util.control.NonFatal
-import scribe.Logger
+import scribe.LoggerSupport
+import ujson.Js
 
-final class LanguageServer(
+final class LanguageServer private (
     in: Observable[BaseProtocolMessage],
     client: LanguageClient,
     services: Services,
     requestScheduler: Scheduler,
-    logger: Logger
+    logger: LoggerSupport
 ) {
-  private val activeClientRequests: TrieMap[Json, Cancelable] = TrieMap.empty
+  private val activeClientRequests: TrieMap[Js, Cancelable] = TrieMap.empty
   private val cancelNotification =
     Service.notification[CancelParams]("$/cancelRequest", logger) {
       new Service[CancelParams, Unit] {
@@ -49,63 +47,64 @@ final class LanguageServer(
   private val handlersByMethodName: Map[String, NamedJsonRpcService] =
     services.addService(cancelNotification).byMethodName
 
-  def handleValidMessage(message: Message): Task[Response] = message match {
-    case response: Response =>
-      Task {
-        client.clientRespond(response)
-        Response.empty
-      }
-    case Notification(method, _) =>
-      handlersByMethodName.get(method) match {
-        case None =>
-          Task {
-            // Can't respond to invalid notifications
-            logger.error(s"Unknown method '$method'")
-            Response.empty
-          }
-        case Some(handler) =>
-          handler
-            .handle(message)
-            .map {
-              case Response.Empty => Response.empty
-              case nonEmpty =>
-                logger.error(
-                  s"Obtained non-empty response $nonEmpty for notification $message. " +
-                    s"Expected Response.empty"
-                )
-                Response.empty
+  private def handleValidMessage(message: Message): Task[Response] =
+    message match {
+      case response: Response =>
+        Task {
+          client.clientRespond(response)
+          Response.empty
+        }
+      case Notification(method, _) =>
+        handlersByMethodName.get(method) match {
+          case None =>
+            Task {
+              // Can't respond to invalid notifications
+              logger.error(s"Unknown method '$method'")
+              Response.empty
             }
-            .onErrorRecover {
+          case Some(handler) =>
+            handler
+              .handle(message)
+              .map {
+                case Response.Empty => Response.empty
+                case nonEmpty =>
+                  logger.error(
+                    s"Obtained non-empty response $nonEmpty for notification $message. " +
+                      s"Expected Response.empty"
+                  )
+                  Response.empty
+              }
+              .onErrorRecover {
+                case NonFatal(e) =>
+                  logger.error(s"Error handling notification $message", e)
+                  Response.empty
+              }
+        }
+      case request @ Request(method, _, id) =>
+        handlersByMethodName.get(method) match {
+          case None =>
+            Task {
+              logger.info(s"Method not found '$method'")
+              Response.methodNotFound(method, id)
+            }
+          case Some(handler) =>
+            val response = handler.handle(request).onErrorRecover {
               case NonFatal(e) =>
-                logger.error(s"Error handling notification $message", e)
-                Response.empty
+                logger.error(s"Unhandled error handling request $request", e)
+                Response.internalError(e.getMessage, request.id)
             }
-      }
-    case request @ Request(method, _, id) =>
-      handlersByMethodName.get(method) match {
-        case None =>
-          Task {
-            logger.info(s"Method not found '$method'")
-            Response.methodNotFound(method, id)
-          }
-        case Some(handler) =>
-          val response = handler.handle(request).onErrorRecover {
-            case NonFatal(e) =>
-              logger.error(s"Unhandled error handling request $request", e)
-              Response.internalError(e.getMessage, request.id)
-          }
-          val runningResponse = response.runAsync(requestScheduler)
-          activeClientRequests.put(request.id.asJson, runningResponse)
-          Task.fromFuture(runningResponse)
-      }
+            val runningResponse = response.runAsync(requestScheduler)
+            activeClientRequests.put(request.id.asJsonEncoded, runningResponse)
+            Task.fromFuture(runningResponse)
+        }
 
-  }
+    }
 
-  def handleMessage(message: BaseProtocolMessage): Task[Response] =
-    parseByteBuffer(ByteBuffer.wrap(message.content)) match {
+  private def handleMessage(message: BaseProtocolMessage): Task[Response] =
+    message.content.asJsonParsed match {
       case Left(err) => Task.now(Response.parseError(err.toString))
       case Right(json) =>
-        json.as[Message] match {
+        json.asJsonDecoded[Message] match {
           case Left(err) => Task.now(Response.invalidRequest(err.toString))
           case Right(msg) => handleValidMessage(msg)
         }
@@ -127,4 +126,17 @@ final class LanguageServer(
     logger.info("Listening....")
     Await.result(f, Duration.Inf)
   }
+}
+
+object LanguageServer {
+
+  def apply(
+      in: Observable[BaseProtocolMessage],
+      client: LanguageClient,
+      services: Services,
+      requestScheduler: Scheduler,
+      logger: LoggerSupport
+  ): LanguageServer =
+    new LanguageServer(in, client, services, requestScheduler, logger)
+
 }

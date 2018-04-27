@@ -1,12 +1,12 @@
 package scala.meta.lsp
 
-import io.circe.Json
-import io.circe.generic.JsonCodec
+import scala.meta.jsonrpc.json
+import ujson.Js
 
 /**
  * Parameters and types used in the `initialize` message.
  */
-@JsonCodec case class InitializeParams(
+@json case class InitializeParams(
     /**
      * The process Id of the parent process that started
      * the server.
@@ -23,16 +23,16 @@ import io.circe.generic.JsonCodec
     capabilities: ClientCapabilities
 )
 
-@JsonCodec case class ClientCapabilities()
+@json case class ClientCapabilities()
 
-@JsonCodec case class SaveOptions(
+@json case class SaveOptions(
     /**
      * The client is supposed to include the content on save.
      */
     includeText: Option[Boolean] = None
 )
 
-@JsonCodec case class TextDocumentSyncOptions(
+@json case class TextDocumentSyncOptions(
     /**
      * Open and close notifications are sent to the server.
      */
@@ -56,7 +56,7 @@ import io.circe.generic.JsonCodec
     save: Option[SaveOptions] = None
 )
 
-@JsonCodec case class ServerCapabilities(
+@json case class ServerCapabilities(
     /**
      * Defines how text documents are synced.
      */
@@ -124,24 +124,24 @@ import io.circe.generic.JsonCodec
     executeCommandProvider: ExecuteCommandOptions = ExecuteCommandOptions(Nil)
 )
 
-@JsonCodec case class CompletionOptions(
+@json case class CompletionOptions(
     resolveProvider: Boolean,
     triggerCharacters: Seq[String]
 )
-@JsonCodec case class SignatureHelpOptions(triggerCharacters: Seq[String])
-@JsonCodec case class CodeLensOptions(resolveProvider: Boolean = false)
-@JsonCodec case class DocumentOnTypeFormattingOptions(
+@json case class SignatureHelpOptions(triggerCharacters: Seq[String])
+@json case class CodeLensOptions(resolveProvider: Boolean = false)
+@json case class DocumentOnTypeFormattingOptions(
     firstTriggerCharacter: String,
     moreTriggerCharacters: Seq[String]
 )
-@JsonCodec case class ExecuteCommandOptions(commands: Seq[String])
-@JsonCodec case class CompletionList(
+@json case class ExecuteCommandOptions(commands: Seq[String])
+@json case class CompletionList(
     isIncomplete: Boolean,
     items: Seq[CompletionItem]
 )
-@JsonCodec case class InitializeResult(capabilities: ServerCapabilities)
-@JsonCodec case class Shutdown()
-@JsonCodec case class ShutdownResult()
+@json case class InitializeResult(capabilities: ServerCapabilities)
+@json case class Shutdown()
+@json case class ShutdownResult()
 
 /**
  * The show message request is sent from a server to a client to ask the client to display a
@@ -152,7 +152,7 @@ import io.circe.generic.JsonCodec
  * @param message The actual message
  * @param actions The message action items to present.
  */
-@JsonCodec case class ShowMessageRequestParams(
+@json case class ShowMessageRequestParams(
     `type`: MessageType,
     message: String,
     actions: Seq[MessageActionItem]
@@ -161,82 +161,83 @@ import io.circe.generic.JsonCodec
 /**
  * A short title like 'Retry', 'Open Log' etc.
  */
-@JsonCodec case class MessageActionItem(title: String)
+@json case class MessageActionItem(title: String)
 
-@JsonCodec case class TextDocumentPositionParams(
+@json case class TextDocumentPositionParams(
     textDocument: TextDocumentIdentifier,
     position: Position
 )
 
-@JsonCodec case class ReferenceParams(
+@json case class ReferenceParams(
     textDocument: TextDocumentIdentifier,
     position: Position,
     context: ReferenceContext
 )
 
-@JsonCodec case class RenameParams(
+@json case class RenameParams(
     textDocument: TextDocumentIdentifier,
     position: Position,
     newName: String
 )
 
-@JsonCodec case class CodeActionParams(
+@json case class CodeActionParams(
     textDocument: TextDocumentIdentifier,
     range: Range,
     context: CodeActionContext
 )
 
-@JsonCodec case class CodeActionRequest(params: CodeActionParams)
+@json case class CodeActionRequest(params: CodeActionParams)
 
-@JsonCodec case class DocumentSymbolParams(textDocument: TextDocumentIdentifier)
+@json case class DocumentSymbolParams(textDocument: TextDocumentIdentifier)
 
-@JsonCodec case class TextDocumentRenameRequest(params: RenameParams)
+@json case class TextDocumentRenameRequest(params: RenameParams)
 
-@JsonCodec case class ApplyWorkspaceEditResponse(applied: Boolean)
-@JsonCodec case class ApplyWorkspaceEditParams(
-    label: Option[String],
+@json case class ApplyWorkspaceEditResponse(applied: Boolean)
+@json case class ApplyWorkspaceEditParams(
+    label: Option[String] = None,
     edit: WorkspaceEdit
 )
 
-@JsonCodec case class Hover(contents: Seq[MarkedString], range: Option[Range])
+@json case class Hover(contents: Seq[MarkedString], range: Option[Range] = None)
 
 ///////////////////////////// Notifications ///////////////////////////////
 
 // From server to client
 
-@JsonCodec case class ShowMessageParams(`type`: MessageType, message: String)
-@JsonCodec case class LogMessageParams(`type`: MessageType, message: String)
-@JsonCodec case class PublishDiagnostics(
+@json case class ShowMessageParams(`type`: MessageType, message: String)
+@json case class LogMessageParams(`type`: MessageType, message: String)
+@json case class PublishDiagnostics(
     uri: String,
     diagnostics: Seq[Diagnostic]
 )
 
-@JsonCodec case class DidOpenTextDocumentParams(textDocument: TextDocumentItem)
-@JsonCodec case class DidChangeTextDocumentParams(
+@json case class DidOpenTextDocumentParams(textDocument: TextDocumentItem)
+@json case class DidChangeTextDocumentParams(
     textDocument: VersionedTextDocumentIdentifier,
     contentChanges: Seq[TextDocumentContentChangeEvent]
 )
-@JsonCodec case class DidCloseTextDocumentParams(
+@json case class DidCloseTextDocumentParams(
     textDocument: TextDocumentIdentifier
 )
-@JsonCodec case class WillSaveTextDocumentParams(
+@json case class WillSaveTextDocumentParams(
     textDocument: TextDocumentIdentifier,
     reason: TextDocumentSaveReason
 )
-@JsonCodec case class DidSaveTextDocumentParams(
+@json case class DidSaveTextDocumentParams(
     textDocument: TextDocumentIdentifier
 )
-@JsonCodec case class DidChangeWatchedFilesParams(changes: Seq[FileEvent])
-@JsonCodec case class DidChangeConfigurationParams(settings: Json)
+@json case class DidChangeWatchedFilesParams(changes: Seq[FileEvent])
+@json case class DidChangeConfigurationParams(settings: Js)
 
-@JsonCodec case class Initialized()
+@json case class Initialized()
 
-@JsonCodec case class CancelRequest(id: Int)
+@json case class CancelRequest(id: Int)
 
-@JsonCodec case class CodeActionResult(params: Seq[Command])
-@JsonCodec case class SignatureHelp(
+@json case class CodeActionResult(params: Seq[Command])
+
+@json case class SignatureHelp(
     signatures: Seq[SignatureInformation],
-    activeSignature: Option[Int],
-    activeParameter: Option[Int]
+    activeSignature: Option[Int] = None,
+    activeParameter: Option[Int] = None
 )
-@JsonCodec case class WorkspaceSymbolResult(params: Seq[SymbolInformation])
+@json case class WorkspaceSymbolResult(params: Seq[SymbolInformation])

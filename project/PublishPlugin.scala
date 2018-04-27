@@ -7,6 +7,16 @@ import sys.process._
 
 object PublishPlugin extends AutoPlugin {
 
+  object autoImport {
+
+    lazy val noPublish = List(
+      publishTo := None,
+      publishArtifact := false,
+      skip in publish := true
+    )
+
+  }
+
   override def trigger = allRequirements
   override def requires = JvmPlugin
 

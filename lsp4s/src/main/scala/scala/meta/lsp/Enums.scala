@@ -1,25 +1,24 @@
 package scala.meta.lsp
 
-import enumeratum.values._
+import scala.meta.jsonrpc.Enums
+import scala.meta.jsonrpc.IntEnum
+import scala.meta.jsonrpc.IntEnumCompanion
 
-sealed abstract class DiagnosticSeverity(val value: Int) extends IntEnumEntry
+sealed abstract class DiagnosticSeverity(val value: Int) extends IntEnum
 
-case object DiagnosticSeverity
-    extends IntEnum[DiagnosticSeverity]
-    with IntCirceEnum[DiagnosticSeverity] {
+case object DiagnosticSeverity extends IntEnumCompanion[DiagnosticSeverity] {
 
   case object Error extends DiagnosticSeverity(1)
   case object Warning extends DiagnosticSeverity(2)
   case object Information extends DiagnosticSeverity(3)
   case object Hint extends DiagnosticSeverity(4)
 
-  val values = findValues
-}
-sealed abstract class CompletionItemKind(val value: Int) extends IntEnumEntry
+  val values: IndexedSeq[DiagnosticSeverity] = Enums.findValues
 
-case object CompletionItemKind
-    extends IntEnum[CompletionItemKind]
-    with IntCirceEnum[CompletionItemKind] {
+}
+sealed abstract class CompletionItemKind(val value: Int) extends IntEnum
+
+case object CompletionItemKind extends IntEnumCompanion[CompletionItemKind] {
 
   case object Text extends CompletionItemKind(1)
   case object Method extends CompletionItemKind(2)
@@ -46,15 +45,16 @@ case object CompletionItemKind
   case object Event extends CompletionItemKind(23)
   case object Operator extends CompletionItemKind(24)
   case object TypeParameter extends CompletionItemKind(25)
+  case class Unknown(i: Int) extends CompletionItemKind(i)
 
-  val values = findValues
+  val values: IndexedSeq[CompletionItemKind] = Enums.findValues
+
 }
 
-sealed abstract class DocumentHighlightKind(val value: Int) extends IntEnumEntry
+sealed abstract class DocumentHighlightKind(val value: Int) extends IntEnum
 
 case object DocumentHighlightKind
-    extends IntEnum[DocumentHighlightKind]
-    with IntCirceEnum[DocumentHighlightKind] {
+    extends IntEnumCompanion[DocumentHighlightKind] {
 
   /** A textual occurrence */
   case object Text extends DocumentHighlightKind(1)
@@ -65,14 +65,13 @@ case object DocumentHighlightKind
   /** Write-access of a symbol, like writing to a variable */
   case object Write extends DocumentHighlightKind(3)
 
-  val values = findValues
+  val values: IndexedSeq[DocumentHighlightKind] = Enums.findValues
+
 }
 
-sealed abstract class SymbolKind(val value: Int) extends IntEnumEntry
+sealed abstract class SymbolKind(val value: Int) extends IntEnum
 
-case object SymbolKind
-    extends IntEnum[SymbolKind]
-    with IntCirceEnum[SymbolKind] {
+case object SymbolKind extends IntEnumCompanion[SymbolKind] {
 
   case object File extends SymbolKind(1)
   case object Module extends SymbolKind(2)
@@ -101,14 +100,12 @@ case object SymbolKind
   case object Operator extends SymbolKind(25)
   case object TypeParameter extends SymbolKind(26)
 
-  val values = findValues
+  val values: IndexedSeq[SymbolKind] = Enums.findValues
 }
 
-sealed abstract class MessageType(val value: Int) extends IntEnumEntry
+sealed abstract class MessageType(val value: Int) extends IntEnum
 
-case object MessageType
-    extends IntEnum[MessageType]
-    with IntCirceEnum[MessageType] {
+case object MessageType extends IntEnumCompanion[MessageType] {
 
   /** An error message. */
   case object Error extends MessageType(1)
@@ -122,14 +119,13 @@ case object MessageType
   /** A log message. */
   case object Log extends MessageType(4)
 
-  val values = findValues
+  val values: IndexedSeq[MessageType] = Enums.findValues
 }
 
-sealed abstract class TextDocumentSyncKind(val value: Int) extends IntEnumEntry
+sealed abstract class TextDocumentSyncKind(val value: Int) extends IntEnum
 
 case object TextDocumentSyncKind
-    extends IntEnum[TextDocumentSyncKind]
-    with IntCirceEnum[TextDocumentSyncKind] {
+    extends IntEnumCompanion[TextDocumentSyncKind] {
 
   /** Documents should not be synced at all */
   case object None extends TextDocumentSyncKind(0)
@@ -142,18 +138,16 @@ case object TextDocumentSyncKind
    */
   case object Incremental extends TextDocumentSyncKind(2)
 
-  val values = findValues
+  val values: IndexedSeq[TextDocumentSyncKind] = Enums.findValues
 }
 
 /**
  * Represents reasons why a text document is saved.
  */
-sealed abstract class TextDocumentSaveReason(val value: Int)
-    extends IntEnumEntry
+sealed abstract class TextDocumentSaveReason(val value: Int) extends IntEnum
 
 case object TextDocumentSaveReason
-    extends IntEnum[TextDocumentSaveReason]
-    with IntCirceEnum[TextDocumentSaveReason] {
+    extends IntEnumCompanion[TextDocumentSaveReason] {
 
   /**
    * Manually triggered, e.g. by the user pressing save, by starting debugging,
@@ -167,18 +161,16 @@ case object TextDocumentSaveReason
   /** When the editor lost focus. */
   case object FocusOut extends TextDocumentSaveReason(3)
 
-  val values = findValues
+  val values: IndexedSeq[TextDocumentSaveReason] = Enums.findValues
 }
 
-sealed abstract class FileChangeType(val value: Int) extends IntEnumEntry
+sealed abstract class FileChangeType(val value: Int) extends IntEnum
 
-case object FileChangeType
-    extends IntEnum[FileChangeType]
-    with IntCirceEnum[FileChangeType] {
+case object FileChangeType extends IntEnumCompanion[FileChangeType] {
 
   case object Created extends FileChangeType(1)
   case object Changed extends FileChangeType(2)
   case object Deleted extends FileChangeType(3)
 
-  val values = findValues
+  val values: IndexedSeq[FileChangeType] = Enums.findValues
 }

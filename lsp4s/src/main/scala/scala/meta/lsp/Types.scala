@@ -1,26 +1,24 @@
 package scala.meta.lsp
 
-import cats.syntax.either._
-import io.circe.Decoder
-import io.circe.Encoder
-import io.circe.Json
-import io.circe.generic.JsonCodec
+import scala.meta.jsonrpc.pickle._
+import scala.meta.jsonrpc.json
+import ujson.Js
 
 /**
  * Position in a text document expressed as zero-based line and character offset.
  */
-@JsonCodec case class Position(line: Int, character: Int)
+@json case class Position(line: Int, character: Int)
 
 /**
  * A range in a text document.
  */
-@JsonCodec case class Range(start: Position, end: Position)
+@json case class Range(start: Position, end: Position)
 
 /**
  * Represents a location inside a resource, such as a line
  * inside a text file.
  */
-@JsonCodec case class Location(uri: String, range: Range)
+@json case class Location(uri: String, range: Range)
 
 /**
  * Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid
@@ -32,11 +30,11 @@ import io.circe.generic.JsonCodec
  * @param source the source of this diagnostic (like 'typescript' or 'scala')
  * @param message the diagnostic message
  */
-@JsonCodec case class Diagnostic(
+@json case class Diagnostic(
     range: Range,
-    severity: Option[DiagnosticSeverity],
-    code: Option[String],
-    source: Option[String],
+    severity: Option[DiagnosticSeverity] = None,
+    code: Option[String] = None,
+    source: Option[String] = None,
     message: String
 )
 
@@ -47,25 +45,25 @@ import io.circe.generic.JsonCodec
  * @param command The identifier of the actual command handler
  * @param arguments The arugments this command may be invoked with
  */
-@JsonCodec case class Command(
+@json case class Command(
     title: String,
     command: String,
-    arguments: Seq[Json]
+    arguments: Seq[Js]
 )
 
-@JsonCodec case class TextEdit(range: Range, newText: String)
+@json case class TextEdit(range: Range, newText: String)
 
 /**
  * A workspace edit represents changes to many resources managed
  * in the workspace.
  */
-@JsonCodec case class WorkspaceEdit(
+@json case class WorkspaceEdit(
     changes: Map[String, Seq[TextEdit]] // uri -> changes
 )
 
-@JsonCodec case class TextDocumentIdentifier(uri: String)
+@json case class TextDocumentIdentifier(uri: String)
 
-@JsonCodec case class VersionedTextDocumentIdentifier(
+@json case class VersionedTextDocumentIdentifier(
     uri: String,
     version: Long
 )
@@ -74,7 +72,7 @@ import io.circe.generic.JsonCodec
  * An item to transfer a text document from the client to the
  * server.
  */
-@JsonCodec case class TextDocumentItem(
+@json case class TextDocumentItem(
     uri: String,
     languageId: String,
     /**
@@ -84,7 +82,7 @@ import io.circe.generic.JsonCodec
     version: Long,
     text: String
 )
-@JsonCodec case class CompletionItem(
+@json case class CompletionItem(
     label: String,
     kind: Option[CompletionItemKind] = None,
     detail: Option[String] = None,
@@ -102,32 +100,30 @@ import io.circe.generic.JsonCodec
 
 sealed trait MarkedString
 object MarkedString {
-  implicit val encoder: Encoder[MarkedString] = Encoder.instance {
-    case m: RawMarkedString => Encoder[RawMarkedString].apply(m)
-    case m: MarkdownString => Encoder[MarkdownString].apply(m)
-  }
-  implicit val decoder: Decoder[MarkedString] = Decoder.decodeJsonObject.emap {
-    obj =>
-      val json = Json.fromJsonObject(obj)
-      val result =
-        if (obj.contains("value")) json.as[RawMarkedString]
-        else json.as[MarkdownString]
-      result.leftMap(_.toString)
-  }
+  implicit val rw: ReadWriter[MarkedString] =
+    readwriter[Js].bimap[MarkedString](
+      {
+        case m: RawMarkedString => write(m)
+        case m: MarkdownString => write(m)
+      }, { js =>
+        if (js.obj.contains("value")) read[RawMarkedString](js)
+        else read[MarkdownString](js)
+      }
+    )
 }
-@JsonCodec case class RawMarkedString(language: String, value: String)
+@json case class RawMarkedString(language: String, value: String)
     extends MarkedString
 
-@JsonCodec case class MarkdownString(contents: String) extends MarkedString
+@json case class MarkdownString(contents: String) extends MarkedString
 
-@JsonCodec case class ParameterInformation(
+@json case class ParameterInformation(
     label: String,
-    documentation: Option[String]
+    documentation: Option[String] = None
 )
 
-@JsonCodec case class SignatureInformation(
+@json case class SignatureInformation(
     label: String,
-    documentation: Option[String],
+    documentation: Option[String] = None,
     parameters: Seq[ParameterInformation]
 )
 
@@ -135,7 +131,7 @@ object MarkedString {
  * Value-object that contains additional information when
  * requesting references.
  */
-@JsonCodec case class ReferenceContext(
+@json case class ReferenceContext(
     /** Include the declaration of the current symbol. */
     includeDeclaration: Boolean
 )
@@ -145,26 +141,26 @@ object MarkedString {
  * special attention. Usually a document highlight is visualized by changing
  * the background color of its range.
  */
-@JsonCodec case class DocumentHighlight(
+@json case class DocumentHighlight(
     /** The range this highlight applies to. */
     range: Range,
     /** The highlight kind, default is [text](#DocumentHighlightKind.Text). */
     kind: DocumentHighlightKind = DocumentHighlightKind.Text
 )
 
-@JsonCodec case class SymbolInformation(
+@json case class SymbolInformation(
     name: String,
     kind: SymbolKind,
     location: Location,
-    containerName: Option[String]
+    containerName: Option[String] = None
 )
 
 /**
  * The parameters of a [WorkspaceSymbolRequest](#WorkspaceSymbolRequest).
  */
-@JsonCodec case class WorkspaceSymbolParams(query: String)
+@json case class WorkspaceSymbolParams(query: String)
 
-@JsonCodec case class CodeActionContext(diagnostics: Seq[Diagnostic])
+@json case class CodeActionContext(diagnostics: Seq[Diagnostic])
 
 /**
  * A code lens represents a [command](#Command) that should be shown along with
@@ -181,19 +177,19 @@ case class CodeLens(
     /**
      * The command this code lens represents.
      */
-    command: Option[Command],
+    command: Option[Command] = None,
     /**
      * An data entry field that is preserved on a code lens item between
      * a [CodeLensRequest](#CodeLensRequest) and a [CodeLensResolveRequest]
      * (#CodeLensResolveRequest)
      */
-    data: Option[Any]
+    data: Option[Any] = None
 )
 
 /**
  * Value-object describing what options formatting should use.
  */
-@JsonCodec case class FormattingOptions(
+@json case class FormattingOptions(
     /**
      * Size of a tab in spaces.
      */
@@ -212,22 +208,22 @@ case class CodeLens(
  * An event describing a change to a text document. If range and rangeLength are omitted
  * the new text is considered to be the full content of the document.
  */
-@JsonCodec case class TextDocumentContentChangeEvent(
+@json case class TextDocumentContentChangeEvent(
     /**
      * The range of the document that changed.
      */
-    range: Option[Range],
+    range: Option[Range] = None,
     /**
      * The length of the range that got replaced.
      */
-    rangeLength: Option[Int],
+    rangeLength: Option[Int] = None,
     /**
      * The new text of the document.
      */
     text: String
 )
 
-@JsonCodec case class DocumentFormattingParams(
+@json case class DocumentFormattingParams(
     /**
      * The document to format.
      */
@@ -238,9 +234,9 @@ case class CodeLens(
     options: FormattingOptions
 )
 
-@JsonCodec case class ExecuteCommandParams(
+@json case class ExecuteCommandParams(
     command: String,
-    arguments: Option[Seq[Json]]
+    arguments: Option[Seq[Js]] = None
 )
 
 /**
@@ -249,7 +245,7 @@ case class CodeLens(
  * @param uri The file's URI
  * @param `type` The change type
  */
-@JsonCodec case class FileEvent(
+@json case class FileEvent(
     uri: String,
     `type`: FileChangeType
 )

@@ -1,25 +1,25 @@
 package scala.meta.jsonrpc
 
-import io.circe.Json
-import io.circe.Decoder
-import io.circe.Encoder
+import ujson.Js
+import scala.meta.jsonrpc.pickle._
 
 sealed trait RequestId
 object RequestId {
   def apply(n: Int): RequestId.String =
-    RequestId.String(Json.fromString(n.toString))
-  implicit val decoder: Decoder[RequestId] = Decoder.decodeJson.map {
-    case s if s.isString => RequestId.String(s)
-    case n if n.isNumber => RequestId.Number(n)
-    case n if n.isNull => RequestId.Null
-  }
-  implicit val encoder: Encoder[RequestId] = Encoder.encodeJson.contramap {
-    case RequestId.Number(v) => v
-    case RequestId.String(v) => v
-    case RequestId.Null => Json.Null
-  }
-  // implicit val encoder: Decoder =
-  case class Number(value: Json) extends RequestId
-  case class String(value: Json) extends RequestId
+    RequestId.String(Js.Str(n.toString))
+  implicit val decoder: ReadWriter[RequestId] =
+    readwriter[Js].bimap[RequestId](
+      {
+        case Number(js) => js
+        case String(js) => js
+        case Null => Js.Null
+      }, {
+        case str: Js.Str => String(str)
+        case num: Js.Num => Number(num)
+        case _ => Null
+      },
+    )
+  case class Number(value: Js) extends RequestId
+  case class String(value: Js) extends RequestId
   case object Null extends RequestId
 }

@@ -3,7 +3,6 @@ package benchmarks
 import java.util.concurrent.TimeUnit
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import com.typesafe.scalalogging.Logger
 import io.circe.Json
 import monix.execution.schedulers.TestScheduler
 import monix.reactive.Observable
@@ -27,7 +26,7 @@ class HotBaseProtocolMessageParserBench {
     }
     val messages = BaseProtocolMessage.fromByteBuffers(
       Observable(requests: _*).map(MessageWriter.write),
-      Logger("bench")
+      scribe.`package`
     )
     val s = TestScheduler()
     val f = messages.runAsyncGetLast(s)

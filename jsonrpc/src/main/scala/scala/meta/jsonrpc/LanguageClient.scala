@@ -1,15 +1,11 @@
-package scala.meta.lsp
+package scala.meta.jsonrpc
 
-import java.io.OutputStream
-import java.nio.ByteBuffer
-import scala.collection.concurrent.TrieMap
-import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 import cats.syntax.either._
-import com.typesafe.scalalogging.Logger
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.syntax._
+import java.io.OutputStream
+import java.nio.ByteBuffer
 import monix.eval.Callback
 import monix.eval.Task
 import monix.execution.Ack
@@ -17,13 +13,11 @@ import monix.execution.Cancelable
 import monix.execution.atomic.Atomic
 import monix.execution.atomic.AtomicInt
 import monix.reactive.Observer
-import scala.meta.jsonrpc.JsonRpcClient
-import scala.meta.jsonrpc.MessageWriter
-import scala.meta.jsonrpc.Notification
-import scala.meta.jsonrpc.Request
-import scala.meta.jsonrpc.RequestId
-import scala.meta.jsonrpc.Response
-import scala.meta.lsp.MonixEnrichments._
+import scala.collection.concurrent.TrieMap
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import MonixEnrichments._
+import scribe.Logger
 
 class LanguageClient(out: Observer[ByteBuffer], logger: Logger)
     extends JsonRpcClient {

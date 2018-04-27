@@ -253,5 +253,3 @@ case class CodeLens(
     uri: String,
     `type`: FileChangeType
 )
-
-@JsonCodec case class CancelParams(id: Json)

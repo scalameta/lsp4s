@@ -1,12 +1,11 @@
 package scala.meta.jsonrpc
 
-import com.typesafe.scalalogging.LazyLogging
-import com.typesafe.scalalogging.Logger
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.Json
 import io.circe.syntax._
 import monix.eval.Task
+import scribe.Logger
 
 trait Service[A, B] {
   def handle(request: A): Task[B]
@@ -18,7 +17,7 @@ trait MethodName {
 trait JsonRpcService extends Service[Message, Response]
 trait NamedJsonRpcService extends JsonRpcService with MethodName
 
-object Service extends LazyLogging {
+object Service {
 
   def request[A: Decoder, B: Encoder](method: String)(
       f: Service[A, Either[Response.Error, B]]
@@ -45,10 +44,6 @@ object Service extends LazyLogging {
     }
   }
 
-  def notification[A: Decoder](method: String)(
-      f: Service[A, Unit]
-  ): NamedJsonRpcService = notification[A](method, logger)(f)
-
   def notification[A: Decoder](method: String, logger: Logger)(
       f: Service[A, Unit]
   ): NamedJsonRpcService =
@@ -72,13 +67,17 @@ object Service extends LazyLogging {
           fail(s"Expected notification, obtained $message")
       }
     }
+
 }
 
 object Services {
-  val empty: Services = new Services(Nil)
+  def empty(logger: Logger): Services = new Services(Nil, logger)
 }
 
-class Services private (val services: List[NamedJsonRpcService]) {
+class Services private (
+    val services: List[NamedJsonRpcService],
+    logger: Logger
+) {
 
   def request[A, B](endpoint: Endpoint[A, B])(f: A => B): Services =
     requestAsync[A, B](endpoint)(new Service[A, Either[Response.Error, B]] {
@@ -104,7 +103,9 @@ class Services private (val services: List[NamedJsonRpcService]) {
   def notificationAsync[A](
       endpoint: Endpoint[A, Unit]
   )(f: Service[A, Unit]): Services =
-    addService(Service.notification[A](endpoint.method)(f)(endpoint.decoderA))
+    addService(
+      Service.notification[A](endpoint.method, logger)(f)(endpoint.decoderA)
+    )
 
   def byMethodName: Map[String, NamedJsonRpcService] =
     services.iterator.map(s => s.methodName -> s).toMap
@@ -114,6 +115,6 @@ class Services private (val services: List[NamedJsonRpcService]) {
       duplicate.isEmpty,
       s"Duplicate service handler for method ${duplicate.get.methodName}"
     )
-    new Services(service :: services)
+    new Services(service :: services, logger)
   }
 }

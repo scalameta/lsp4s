@@ -16,8 +16,8 @@ inThisBuild(
     licenses := Seq(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
-    testFrameworks := new TestFramework("utest.runner.Framework") :: Nil,
-    libraryDependencies += "com.lihaoyi" %% "utest" % "0.6.0" % Test,
+    libraryDependencies += "io.monix" %% "minitest" % "2.1.1" % "test",
+    testFrameworks += new TestFramework("minitest.runner.Framework"),
     // faster publishLocal:
     publishArtifact in packageDoc := sys.env.contains("CI"),
     publishArtifact in packageSrc := sys.env.contains("CI"),
@@ -50,18 +50,15 @@ lazy val jsonrpc = project
     // NOTE: there are plans to drop most of these dependencies
     // https://github.com/scalameta/metals/issues/285
     libraryDependencies ++= List(
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "com.outr" %% "scribe" % "2.3.3",
       "com.beachape" %% "enumeratum" % V.enumeratum,
       "com.beachape" %% "enumeratum-circe" % "1.5.15",
       "com.lihaoyi" %% "pprint" % "0.5.3",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
       "io.circe" %% "circe-core" % V.circe,
       "io.circe" %% "circe-generic" % V.circe,
       "io.circe" %% "circe-generic-extras" % V.circe,
       "io.circe" %% "circe-parser" % V.circe,
       "io.monix" %% "monix" % V.monix,
-      "org.codehaus.groovy" % "groovy" % "2.4.0",
-      "org.slf4j" % "slf4j-api" % "1.7.25",
       "org.typelevel" %% "cats-core" % V.cats
     )
   )

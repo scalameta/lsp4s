@@ -1,19 +1,18 @@
-package scala.meta.lsp
+package scala.meta.jsonrpc
 
-import java.nio.ByteBuffer
-import scala.collection.concurrent.TrieMap
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.util.control.NonFatal
-import com.typesafe.scalalogging.Logger
 import io.circe.Json
-import io.circe.syntax._
 import io.circe.jawn.parseByteBuffer
+import io.circe.syntax._
+import java.nio.ByteBuffer
 import monix.eval.Task
 import monix.execution.Cancelable
 import monix.execution.Scheduler
 import monix.reactive.Observable
-import scala.meta.jsonrpc._
+import scala.collection.concurrent.TrieMap
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.control.NonFatal
+import scribe.Logger
 
 final class LanguageServer(
     in: Observable[BaseProtocolMessage],
@@ -24,7 +23,7 @@ final class LanguageServer(
 ) {
   private val activeClientRequests: TrieMap[Json, Cancelable] = TrieMap.empty
   private val cancelNotification =
-    Service.notification[CancelParams]("$/cancelRequest") {
+    Service.notification[CancelParams]("$/cancelRequest", logger) {
       new Service[CancelParams, Unit] {
         def handle(params: CancelParams): Task[Unit] = {
           val id = params.id

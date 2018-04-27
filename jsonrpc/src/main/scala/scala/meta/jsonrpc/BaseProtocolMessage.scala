@@ -4,11 +4,10 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util
-import com.typesafe.scalalogging.LazyLogging
-import com.typesafe.scalalogging.Logger
 import io.circe.Json
 import io.circe.syntax._
 import monix.reactive.Observable
+import scribe.Logger
 
 final class BaseProtocolMessage(
     val header: Map[String, String],
@@ -30,7 +29,7 @@ final class BaseProtocolMessage(
   }
 }
 
-object BaseProtocolMessage extends LazyLogging {
+object BaseProtocolMessage {
   val ContentLen = "Content-Length"
 
   def apply(msg: Message): BaseProtocolMessage =
@@ -42,9 +41,6 @@ object BaseProtocolMessage extends LazyLogging {
       Map("Content-Length" -> bytes.length.toString),
       bytes
     )
-
-  def fromInputStream(in: InputStream): Observable[BaseProtocolMessage] =
-    fromInputStream(in, logger)
 
   def fromInputStream(
       in: InputStream,

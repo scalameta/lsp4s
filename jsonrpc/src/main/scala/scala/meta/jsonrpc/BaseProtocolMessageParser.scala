@@ -4,11 +4,11 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
-import com.typesafe.scalalogging.Logger
 import monix.execution.Ack
 import monix.execution.Scheduler
 import monix.reactive.observables.ObservableLike.Operator
 import monix.reactive.observers.Subscriber
+import scribe.Logger
 
 final class BaseProtocolMessageParser(logger: Logger)
     extends Operator[ByteBuffer, BaseProtocolMessage] {

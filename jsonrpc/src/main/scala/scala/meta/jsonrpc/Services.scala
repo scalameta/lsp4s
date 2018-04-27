@@ -5,6 +5,7 @@ import io.circe.Encoder
 import io.circe.Json
 import io.circe.syntax._
 import monix.eval.Task
+import scribe.Logger
 
 trait Service[A, B] {
   def handle(request: A): Task[B]

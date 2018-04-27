@@ -8,6 +8,7 @@ import monix.execution.Cancelable
 import monix.execution.Scheduler
 import monix.reactive.Observable
 import monix.reactive.Observer
+import scribe.Logger
 
 object MonixEnrichments {
 

@@ -10,6 +10,7 @@ import scala.concurrent.Future
 import io.circe.syntax._
 import monix.execution.Ack
 import monix.reactive.Observer
+import scribe.Logger
 
 /**
  * A class to write Json RPC messages on an output stream, following the Language Server Protocol.

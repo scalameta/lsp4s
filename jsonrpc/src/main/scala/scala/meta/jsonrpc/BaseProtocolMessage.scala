@@ -7,6 +7,7 @@ import java.util
 import io.circe.Json
 import io.circe.syntax._
 import monix.reactive.Observable
+import scribe.Logger
 
 final class BaseProtocolMessage(
     val header: Map[String, String],

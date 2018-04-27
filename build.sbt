@@ -50,6 +50,7 @@ lazy val jsonrpc = project
     // NOTE: there are plans to drop most of these dependencies
     // https://github.com/scalameta/metals/issues/285
     libraryDependencies ++= List(
+      "com.outr" %% "scribe" % "2.3.3",
       "com.beachape" %% "enumeratum" % V.enumeratum,
       "com.beachape" %% "enumeratum-circe" % "1.5.15",
       "com.lihaoyi" %% "pprint" % "0.5.3",

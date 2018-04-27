@@ -17,6 +17,7 @@ import scala.collection.concurrent.TrieMap
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import MonixEnrichments._
+import scribe.Logger
 
 class LanguageClient(out: Observer[ByteBuffer], logger: Logger)
     extends JsonRpcClient {

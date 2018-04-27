@@ -8,6 +8,7 @@ import monix.execution.Ack
 import monix.execution.Scheduler
 import monix.reactive.observables.ObservableLike.Operator
 import monix.reactive.observers.Subscriber
+import scribe.Logger
 
 final class BaseProtocolMessageParser(logger: Logger)
     extends Operator[ByteBuffer, BaseProtocolMessage] {

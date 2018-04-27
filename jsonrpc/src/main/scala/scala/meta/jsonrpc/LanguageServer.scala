@@ -12,6 +12,7 @@ import scala.collection.concurrent.TrieMap
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.control.NonFatal
+import scribe.Logger
 
 final class LanguageServer(
     in: Observable[BaseProtocolMessage],

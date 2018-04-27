@@ -6,10 +6,6 @@ import minitest.SimpleTestSuite
 import scala.meta.jsonrpc._
 
 object LoggerSuite extends SimpleTestSuite {
-  test("source location") {
-    val source = SourceLocation.generate
-    assert(source.toString.startsWith("LoggerSuite.scala:"))
-  }
 
   test("stdout") {
     val baos = new ByteArrayOutputStream()

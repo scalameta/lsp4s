@@ -6,7 +6,7 @@ import scribe.format._
 
 object Logs {
 
-  private object ClassNameLine extends FormatBlock {
+  object ClassNameLine extends FormatBlock {
     override def format[M](record: LogRecord[M]): String = {
       val idx = record.className.lastIndexOf('.')
       val name =
@@ -19,7 +19,7 @@ object Logs {
     }
   }
 
-  private val Format = formatter"$level - $ClassNameLine $message$newLine"
+  val Format = formatter"$level - $ClassNameLine $message$newLine"
 
   /** Update global settings for logging format. */
   def configure(): Unit = {

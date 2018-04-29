@@ -4,11 +4,13 @@ import minitest.SimpleTestSuite
 import scala.meta.jsonrpc.json
 import scala.meta.jsonrpc.pickle._
 
+sealed trait Sealed
+
 @json case class User(
     name: String,
     age: Option[Int] = None,
     camelCase: String = ""
-)
+) extends Sealed
 object User extends Foo with Bar {
   println(bar)
 }

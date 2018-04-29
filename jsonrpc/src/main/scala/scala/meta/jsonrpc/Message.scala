@@ -4,12 +4,8 @@ import monix.eval.Task
 import scala.meta.jsonrpc.pickle._
 import ujson.Js
 
-/**
- * Supertype for all request, response and notification types.
- *
- * @note Effectively sealed but not sealed because upickle automatically includes `$type` field for subtypes
- */
-trait Message
+/** Supertype for all request, response and notification types. */
+sealed trait Message
 object Message {
   implicit val rw: ReadWriter[Message] = readwriter[Js].bimap[Message](
     { msg =>
@@ -46,12 +42,8 @@ object Message {
 @json final case class Notification(method: String, params: Option[Js])
     extends Message
 
-/**
- * Supertype for all response types.
- *
- * @note Effectively sealed but not sealed because upickle automatically includes `$type` field for subtypes.
- */
-trait Response extends Message {
+/** Supertype for all response types. */
+sealed trait Response extends Message {
   final def isSuccess: Boolean = this.isInstanceOf[Response.Success]
   final def isError: Boolean = this.isInstanceOf[Response.Error]
 }

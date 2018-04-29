@@ -103,11 +103,11 @@ object MarkedString {
   implicit val rw: ReadWriter[MarkedString] =
     readwriter[Js].bimap[MarkedString](
       {
-        case m: RawMarkedString => write(m)
-        case m: MarkdownString => write(m)
+        case m: RawMarkedString => writeJs(m)
+        case m: MarkdownString => writeJs(m)
       }, { js =>
-        if (js.obj.contains("value")) read[RawMarkedString](js)
-        else read[MarkdownString](js)
+        if (js.obj.contains("value")) readJs[RawMarkedString](js)
+        else readJs[MarkdownString](js)
       }
     )
 }

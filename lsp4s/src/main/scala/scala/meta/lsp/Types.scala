@@ -65,7 +65,7 @@ import ujson.Js
 
 @json case class VersionedTextDocumentIdentifier(
     uri: String,
-    version: Long
+    version: Double
 )
 
 /**
@@ -79,7 +79,7 @@ import ujson.Js
      * The version number of this document (it will strictly increase after each
      * change, including undo/redo).
      */
-    version: Long,
+    version: Double,
     text: String
 )
 @json case class CompletionItem(

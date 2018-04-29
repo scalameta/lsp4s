@@ -11,7 +11,7 @@ import ujson.Js
      * The process Id of the parent process that started
      * the server.
      */
-    processId: Long,
+    processId: Double,
     /**
      * The rootPath of the workspace. Is null
      * if no folder is open.

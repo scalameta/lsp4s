@@ -13,12 +13,7 @@ final class Services private (
 ) {
 
   def request[A, B](endpoint: Endpoint[A, B])(f: A => B): Services =
-    requestAsync[A, B](endpoint)(
-      new Function[A, Task[Either[Response.Error, B]]] {
-        override def apply(v1: A): Task[Either[Response.Error, B]] =
-          Task(Right(f(v1)))
-      }
-    )
+    requestAsync[A, B](endpoint)(params => Task(Right(f(params))))
 
   def requestAsync[A, B](
       endpoint: Endpoint[A, B]
@@ -31,9 +26,7 @@ final class Services private (
     )
 
   def notification[A](endpoint: Endpoint[A, Unit])(f: A => Unit): Services =
-    notificationAsync[A](endpoint)(new Function[A, Task[Unit]] {
-      override def apply(v1: A): Task[Unit] = Task(f(v1))
-    })
+    notificationAsync[A](endpoint)(params => Task(f(params)))
 
   def notificationAsync[A](
       endpoint: Endpoint[A, Unit]

@@ -9,6 +9,13 @@ import scala.meta.jsonrpc.pickle._
     age: Option[Int] = None,
     camelCase: String = ""
 )
+object User extends Foo with Bar {
+  println(bar)
+}
+trait Foo
+trait Bar {
+  def bar = "bar"
+}
 
 object JsonSuite extends SimpleTestSuite {
   def checkRead(original: String, expected: User): Unit =

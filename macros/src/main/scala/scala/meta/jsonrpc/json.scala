@@ -44,7 +44,7 @@ final class JsonCodecExpander(val c: blackbox.Context) {
         ) if c.mods.hasFlag(Flag.CASE) =>
       q"""
          $c
-         object $name extends { ..$early } with $parents { $self =>
+         object $name extends { ..$early } with ..$parents { $self =>
            ${rw(c.name)}
            ..$stats
          }

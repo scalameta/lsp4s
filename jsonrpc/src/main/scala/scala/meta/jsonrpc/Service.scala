@@ -6,23 +6,30 @@ import scala.meta.jsonrpc.pickle.ReadWriter
 import scribe.LoggerSupport
 import ujson.Js
 
-trait Service[A, B] {
-  def handle(request: A): Task[B]
-}
+/** Handler for a single endpoint. */
+trait Service {
 
-trait MethodName {
+  /** Handle a request or notification */
+  def handle(message: Message): Task[Response]
+
+  /** The JSON-RPC method name this service handles */
   def methodName: String
+
 }
-
-trait JsonRpcService extends Service[Message, Response]
-
-trait NamedJsonRpcService extends JsonRpcService with MethodName
 
 object Service {
 
+  /**
+   * Build service for a request endpoint.
+   *
+   * @param method name of the method handled by this service.
+   * @param f handler for this service.
+   * @tparam A type inside "params" field of the request to be decoded.
+   * @tparam B type inside "result" field of the response to be encoded.
+   */
   def request[A: ReadWriter, B: ReadWriter](method: String)(
-      f: Service[A, Either[Response.Error, B]]
-  ): NamedJsonRpcService = new NamedJsonRpcService {
+      f: A => Task[Either[Response.Error, B]]
+  ): Service = new Service {
     override def methodName: String = method
     override def handle(message: Message): Task[Response] = message match {
       case Request(`method`, params, id) =>
@@ -30,7 +37,7 @@ object Service {
           case Left(err) =>
             Task(Response.invalidParams(err.toString, id))
           case Right(value) =>
-            f.handle(value).map {
+            f.apply(value).map {
               case Right(response) => Response.ok(response.asJsonEncoded, id)
               // Service[A, ...] doesn't have access to the request ID so
               // by convention it's OK to set the ID to null by default
@@ -45,28 +52,34 @@ object Service {
     }
   }
 
+  /**
+   * Build service for a notification endpoint.
+   *
+   * @param method name of the method handled by this service.
+   * @param f handler for this service.
+   * @tparam A type inside "params" field of the notification to be decoded.
+   */
   def notification[A: ReadWriter](method: String, logger: LoggerSupport)(
-      f: Service[A, Unit]
-  ): NamedJsonRpcService =
-    new NamedJsonRpcService {
-      override def methodName: String = method
-      private def fail(msg: String): Task[Response] = Task {
-        logger.error(msg)
-        Response.empty
-      }
-      override def handle(message: Message): Task[Response] = message match {
-        case Notification(`method`, params) =>
-          params.getOrElse(Js.Null).asJsonDecoded[A] match {
-            case Left(err) =>
-              fail(s"Failed to parse notification $message. Errors: $err")
-            case Right(value) =>
-              f.handle(value).map(_ => Response.empty)
-          }
-        case Notification(invalidMethod, _) =>
-          fail(s"Expected method '$method', obtained '$invalidMethod'")
-        case _ =>
-          fail(s"Expected notification, obtained $message")
-      }
+      f: A => Task[Unit]
+  ): Service = new Service {
+    override def methodName: String = method
+    private def fail(msg: String): Task[Response] = Task {
+      logger.error(msg)
+      Response.empty
     }
+    override def handle(message: Message): Task[Response] = message match {
+      case Notification(`method`, params) =>
+        params.getOrElse(Js.Null).asJsonDecoded[A] match {
+          case Left(err) =>
+            fail(s"Failed to parse notification $message. Errors: $err")
+          case Right(value) =>
+            f.apply(value).map(_ => Response.empty)
+        }
+      case Notification(invalidMethod, _) =>
+        fail(s"Expected method '$method', obtained '$invalidMethod'")
+      case _ =>
+        fail(s"Expected notification, obtained $message")
+    }
+  }
 
 }

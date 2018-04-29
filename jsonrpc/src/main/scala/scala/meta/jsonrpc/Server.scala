@@ -12,39 +12,45 @@ import scala.util.control.NonFatal
 import scribe.LoggerSupport
 import ujson.Js
 
-final class LanguageServer private (
+/**
+ * A JSON-RPC server to send+receive requests+responses+notifications with support to handle requests.
+ *
+ * The difference between this and `Client` is the ability to handle requests through the
+ * `services` parameter.
+ *
+ * Request cancellation is implemented according to the Language Server Protocol through the
+ * $/cancelRequest method. Observe that the JSON-RPC spec does have a notion of request cancellation.
+ */
+final class Server private (
     in: Observable[BaseProtocolMessage],
-    client: LanguageClient,
+    client: Client,
     services: Services,
     requestScheduler: Scheduler,
     logger: LoggerSupport
 ) {
+
   private val activeClientRequests: TrieMap[Js, Cancelable] = TrieMap.empty
-  private val cancelNotification =
-    Service.notification[CancelParams]("$/cancelRequest", logger) {
-      new Service[CancelParams, Unit] {
-        def handle(params: CancelParams): Task[Unit] = {
-          val id = params.id
-          activeClientRequests.get(id) match {
-            case None =>
-              Task {
-                logger.warn(
-                  s"Can't cancel request $id, no active request found."
-                )
-                Response.empty
-              }
-            case Some(request) =>
-              Task {
-                logger.info(s"Cancelling request $id")
-                request.cancel()
-                activeClientRequests.remove(id)
-                Response.cancelled(id)
-              }
+  private val cancelNotification = Service
+    .notification[CancelParams]("$/cancelRequest", logger) { params =>
+      val id = params.id
+      activeClientRequests.get(id) match {
+        case None =>
+          Task {
+            logger.warn(
+              s"Can't cancel request $id, no active request found."
+            )
+            Response.empty
           }
-        }
+        case Some(request) =>
+          Task {
+            logger.info(s"Cancelling request $id")
+            request.cancel()
+            activeClientRequests.remove(id)
+            Response.cancelled(id)
+          }
       }
     }
-  private val handlersByMethodName: Map[String, NamedJsonRpcService] =
+  private val handlersByMethodName: Map[String, Service] =
     services.addService(cancelNotification).byMethodName
 
   private def handleValidMessage(message: Message): Task[Response] =
@@ -110,6 +116,7 @@ final class LanguageServer private (
         }
     }
 
+  /** Task to indefinitely listen to and respond to requests from the input stream. */
   def startTask: Task[Unit] =
     in.foreachL { msg =>
       handleMessage(msg)
@@ -121,22 +128,24 @@ final class LanguageServer private (
         .runAsync(requestScheduler)
     }
 
+  /** Listen indefinitely and respond to requests from the input stream. */
   def listen(): Unit = {
     val f = startTask.runAsync(requestScheduler)
     logger.info("Listening....")
     Await.result(f, Duration.Inf)
   }
+
 }
 
-object LanguageServer {
+object Server {
 
   def apply(
       in: Observable[BaseProtocolMessage],
-      client: LanguageClient,
+      client: Client,
       services: Services,
       requestScheduler: Scheduler,
       logger: LoggerSupport
-  ): LanguageServer =
-    new LanguageServer(in, client, services, requestScheduler, logger)
+  ): Server =
+    new Server(in, client, services, requestScheduler, logger)
 
 }

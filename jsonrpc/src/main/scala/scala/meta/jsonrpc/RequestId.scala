@@ -3,6 +3,7 @@ package scala.meta.jsonrpc
 import ujson.Js
 import scala.meta.jsonrpc.pickle._
 
+/** A JSON-RPC request ID, which can be a number, string or null */
 sealed trait RequestId
 object RequestId {
   def apply(n: Int): RequestId.String =
@@ -17,7 +18,7 @@ object RequestId {
         case str: Js.Str => String(str)
         case num: Js.Num => Number(num)
         case _ => Null
-      },
+      }
     )
   case class Number(value: Js) extends RequestId
   case class String(value: Js) extends RequestId

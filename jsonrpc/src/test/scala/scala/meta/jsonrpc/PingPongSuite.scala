@@ -48,7 +48,7 @@ object PingPongSuite extends SimpleTestSuite {
       .notification(Pong) { message =>
         assert(pongs.add(message))
       }
-    def pongBack(client: JsonRpcClient): Services =
+    def pongBack(client: Client): Services =
       services.notification(Ping) { message =>
         Pong.notify(message.replace("Ping", "Pong"))(client)
       }

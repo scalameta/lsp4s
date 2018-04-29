@@ -27,9 +27,8 @@ class MessageWriter(out: Observer[ByteBuffer], logger: LoggerSupport) {
    */
   def write(msg: Message): Future[Ack] = lock.synchronized {
     baos.reset()
-    val json = msg.asJsonEncoded
-    val protocol = BaseProtocolMessage.fromJson(json)
-    logger.trace(s" --> $json")
+    val protocol = BaseProtocolMessage(msg)
+    logger.trace(s" --> ${msg.asJsonString}")
     val byteBuffer = MessageWriter.write(protocol, baos, headerOut)
     out.onNext(byteBuffer)
   }
@@ -65,4 +64,5 @@ object MessageWriter {
     val buffer = ByteBuffer.wrap(out.toByteArray, 0, out.size())
     buffer
   }
+
 }

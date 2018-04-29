@@ -7,16 +7,16 @@ import java.util
 import monix.reactive.Observable
 import scribe.LoggerSupport
 import ujson.Js
-import scala.meta.jsonrpc.pickle.write
 import scala.meta.internal.jsonrpc._
 
+/** A single raw un-parsed request, response or notification */
 final class BaseProtocolMessage(
     val header: Map[String, String],
     val content: Array[Byte]
 ) {
 
-  override def equals(obj: scala.Any): Boolean =
-    this.eq(obj.asInstanceOf[Object]) || {
+  override def equals(obj: Any): Boolean =
+    this.eq(obj.asInstanceOf[AnyRef]) || {
       obj match {
         case m: BaseProtocolMessage =>
           header.equals(m.header) &&
@@ -34,9 +34,9 @@ object BaseProtocolMessage {
   val ContentLen = "Content-Length"
 
   def apply(msg: Message): BaseProtocolMessage =
-    fromJson(msg.asJsonEncoded)
+    fromBytes(msg.asBytesEncoded)
   def fromJson(json: Js): BaseProtocolMessage =
-    fromBytes(write(json).getBytes(StandardCharsets.UTF_8))
+    fromBytes(json.asBytesEncoded)
   def fromBytes(bytes: Array[Byte]): BaseProtocolMessage =
     new BaseProtocolMessage(
       Map("Content-Length" -> bytes.length.toString),

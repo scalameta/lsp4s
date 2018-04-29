@@ -8,6 +8,7 @@ import monix.execution.schedulers.TestScheduler
 import monix.reactive.Observable
 import scala.meta.jsonrpc._
 import org.openjdk.jmh.annotations._
+import scribe.Logger
 
 /**
  * benchmarks/jmh:run -i 10 -wi 10 -f1 -t1 benchmarks.HotBaseProtocolMessageParserBench
@@ -26,7 +27,7 @@ class HotBaseProtocolMessageParserBench {
     }
     val messages = BaseProtocolMessage.fromByteBuffers(
       Observable(requests: _*).map(MessageWriter.write),
-      scribe.`package`
+      Logger.root
     )
     val s = TestScheduler()
     val f = messages.runAsyncGetLast(s)

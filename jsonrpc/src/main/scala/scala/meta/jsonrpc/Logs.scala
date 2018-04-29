@@ -21,6 +21,7 @@ object Logs {
 
   private val Format = formatter"$level - $ClassNameLine $message$newLine"
 
+  /** Update global settings for logging format. */
   def configure(): Unit = {
     Logger.root
       .clearHandlers()

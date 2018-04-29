@@ -1,12 +1,17 @@
 package scala.meta.jsonrpc
 
 import monix.eval.Task
+import scala.meta.jsonrpc.pickle._
 import ujson.Js
-// effectively sealed but not sealed because upickle automatically includes `$type` field for subtypes
+
+/**
+ * Supertype for all request, response and notification types.
+ *
+ * @note Effectively sealed but not sealed because upickle automatically includes `$type` field for subtypes
+ */
 trait Message
 object Message {
-  import scala.meta.jsonrpc.pickle._
-  implicit val rw: ReadWriter[Message] = readwriter[ujson.Js].bimap[Message](
+  implicit val rw: ReadWriter[Message] = readwriter[Js].bimap[Message](
     { msg =>
       val obj = msg match {
         case r: Request => writeJs(r)
@@ -15,7 +20,7 @@ object Message {
         case r: Response.Error => writeJs(r)
         case Response.Empty => Js.Obj()
       }
-      obj.obj.put("jsonrpc", ujson.Js.Str("2.0"))
+      obj.obj.put("jsonrpc", Js.Str("2.0"))
       obj
     }, { js =>
       if (js.obj.contains("id")) {
@@ -41,10 +46,14 @@ object Message {
 @json final case class Notification(method: String, params: Option[Js])
     extends Message
 
-// effectively sealed but not sealed because upickle automatically includes `$type` field for subtypes
+/**
+ * Supertype for all response types.
+ *
+ * @note Effectively sealed but not sealed because upickle automatically includes `$type` field for subtypes.
+ */
 trait Response extends Message {
-  def isSuccess: Boolean = this.isInstanceOf[Response.Success]
-  def isError: Boolean = this.isInstanceOf[Response.Error]
+  final def isSuccess: Boolean = this.isInstanceOf[Response.Success]
+  final def isError: Boolean = this.isInstanceOf[Response.Error]
 }
 
 object Response {
@@ -53,6 +62,7 @@ object Response {
   @json final case class Error(error: ErrorObject, id: RequestId)
       extends Response
   case object Empty extends Response
+
   def empty: Response = Empty
   def ok(result: Js, id: RequestId): Response =
     success(result, id)

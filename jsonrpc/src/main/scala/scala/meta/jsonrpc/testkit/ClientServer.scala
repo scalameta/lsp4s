@@ -5,7 +5,7 @@ import java.io.PipedOutputStream
 import monix.execution.Scheduler
 import scala.meta.jsonrpc.Connection
 import scala.meta.jsonrpc.InputOutput
-import scala.meta.jsonrpc.JsonRpcClient
+import scala.meta.jsonrpc.Client
 import scala.meta.jsonrpc.Services
 
 final case class ClientServer(client: Connection, server: Connection)
@@ -22,8 +22,8 @@ object ClientServer {
    * @param s the scheduler to run all services.
    */
   def apply(
-      clientServices: JsonRpcClient => Services,
-      serverServices: JsonRpcClient => Services
+      clientServices: Client => Services,
+      serverServices: Client => Services
   )(implicit s: Scheduler): ClientServer = {
     val inClient = new PipedInputStream()
     val inServer = new PipedInputStream()
@@ -31,8 +31,8 @@ object ClientServer {
     val outServer = new PipedOutputStream(inClient)
     val clientIO = new InputOutput(inClient, outClient)
     val serverIO = new InputOutput(inServer, outServer)
-    val client = Connection(clientIO, "client")(clientServices)
-    val server = Connection(serverIO, "server")(serverServices)
+    val client = Connection.simple(clientIO, "client")(clientServices)
+    val server = Connection.simple(serverIO, "server")(serverServices)
     new ClientServer(client, server)
   }
 }

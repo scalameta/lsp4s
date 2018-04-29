@@ -1,7 +1,7 @@
 package scala.meta.jsonrpc
 
+/** A JSON-RPC error response code. */
 sealed abstract class ErrorCode(val value: Int) extends IntEnum
-
 object ErrorCode extends IntEnumCompanion[ErrorCode] {
 
   case object ParseError extends ErrorCode(-32700)

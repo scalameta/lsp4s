@@ -3,7 +3,6 @@ package scala.meta.lsp
 
 import scala.meta.jsonrpc._
 import scala.meta.jsonrpc.Endpoint._
-import scala.meta.jsonrpc.JsonRpcClient
 import scala.meta.jsonrpc.Response.Error
 import monix.eval.Task
 import ujson.Js
@@ -75,46 +74,46 @@ trait Workspace {
 object Window extends Window
 trait Window {
   object showMessage extends Endpoint[ShowMessageParams, Unit]("window/showMessage") {
-    def error(message: String)(implicit client: JsonRpcClient): Unit =
+    def error(message: String)(implicit client: Client): Unit =
       showMessage.notify(ShowMessageParams(MessageType.Error, message))
-    def warn(message: String)(implicit client: JsonRpcClient): Unit =
+    def warn(message: String)(implicit client: Client): Unit =
       showMessage.notify(ShowMessageParams(MessageType.Warning, message))
-    def info(message: String)(implicit client: JsonRpcClient): Unit =
+    def info(message: String)(implicit client: Client): Unit =
       showMessage.notify(ShowMessageParams(MessageType.Info, message))
-    def log(message: String)(implicit client: JsonRpcClient): Unit =
+    def log(message: String)(implicit client: Client): Unit =
       showMessage.notify(ShowMessageParams(MessageType.Log, message))
   }
   object showMessageRequest
       extends Endpoint[ShowMessageRequestParams, Option[MessageActionItem]]("window/showMessageRequest") {
     def error(message: String)(actionItems: MessageActionItem*)(
-        implicit client: JsonRpcClient): Task[Either[Error, Option[MessageActionItem]]] =
+        implicit client: Client): Task[Either[Error, Option[MessageActionItem]]] =
       showMessageRequest.request(
         ShowMessageRequestParams(MessageType.Error, message, actionItems)
       )
     def warn(message: String)(actionItems: MessageActionItem*)(
-        implicit client: JsonRpcClient): Task[Either[Error, Option[MessageActionItem]]] =
+        implicit client: Client): Task[Either[Error, Option[MessageActionItem]]] =
       showMessageRequest.request(
         ShowMessageRequestParams(MessageType.Warning, message, actionItems)
       )
     def info(message: String)(actionItems: MessageActionItem*)(
-        implicit client: JsonRpcClient): Task[Either[Error, Option[MessageActionItem]]] =
+        implicit client: Client): Task[Either[Error, Option[MessageActionItem]]] =
       showMessageRequest.request(
         ShowMessageRequestParams(MessageType.Info, message, actionItems)
       )
     def log(message: String)(actionItems: MessageActionItem*)(
-        implicit client: JsonRpcClient): Task[Either[Error, Option[MessageActionItem]]] =
+        implicit client: Client): Task[Either[Error, Option[MessageActionItem]]] =
       showMessageRequest.request(
         ShowMessageRequestParams(MessageType.Log, message, actionItems)
       )
   }
   object logMessage extends Endpoint[LogMessageParams, Unit]("window/logMessage") {
-    def error(message: String)(implicit client: JsonRpcClient): Unit =
+    def error(message: String)(implicit client: Client): Unit =
       super.notify(LogMessageParams(MessageType.Error, message))
-    def warn(message: String)(implicit client: JsonRpcClient): Unit =
+    def warn(message: String)(implicit client: Client): Unit =
       super.notify(LogMessageParams(MessageType.Warning, message))
-    def info(message: String)(implicit client: JsonRpcClient): Unit =
+    def info(message: String)(implicit client: Client): Unit =
       super.notify(LogMessageParams(MessageType.Info, message))
-    def log(message: String)(implicit client: JsonRpcClient): Unit =
+    def log(message: String)(implicit client: Client): Unit =
       super.notify(LogMessageParams(MessageType.Log, message))
   }
 }

@@ -4,29 +4,37 @@ import minitest.SimpleTestSuite
 import scala.meta.jsonrpc.json
 import scala.meta.jsonrpc.pickle._
 
-@json case class User(name: String, age: Option[Int] = None)
+@json case class User(
+    name: String,
+    age: Option[Int] = None,
+    camelCase: String = ""
+)
 
 object JsonSuite extends SimpleTestSuite {
-  test("read") {
-    assertEquals(
-      read[User]("""{"name": "John"}"""),
-      User("John", None)
-    )
-    assertEquals(
-      read[User]("""{"name": "Susan", "age": 42}"""),
-      User("Susan", Some(42))
-    )
-  }
+  def checkRead(original: String, expected: User): Unit =
+    test("read  " + original) {
+      assertEquals(read[User](original), expected)
+    }
+  def checkWrite(original: User, expected: String): Unit =
+    test("write " + original) {
+      assertEquals(write[User](original), expected)
+    }
 
-  test("write") {
-    assertEquals(
-      write(User("John", None)),
-      """{"name":"John"}"""
-    )
-    assertEquals(
-      write(User("Susan", Some(42))),
-      """{"name":"Susan","age":42}"""
-    )
-  }
+  checkRead(
+    """{"name": "John", "camelCase": "2"}""",
+    User("John", None, "2")
+  )
+  checkRead(
+    """{"name": "Susan", "age": 42}""",
+    User("Susan", Some(42))
+  )
+  checkWrite(
+    User("John", None),
+    """{"name":"John"}"""
+  )
+  checkWrite(
+    User("Susan", Some(42), "2"),
+    """{"name":"Susan","age":42,"camelCase":"2"}"""
+  )
 
 }

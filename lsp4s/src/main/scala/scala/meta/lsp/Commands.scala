@@ -11,7 +11,7 @@ import io.circe.generic.JsonCodec
      * The process Id of the parent process that started
      * the server.
      */
-    processId: Long,
+    processId: Double,
     /**
      * The rootPath of the workspace. Is null
      * if no folder is open.
@@ -194,11 +194,14 @@ import io.circe.generic.JsonCodec
 
 @JsonCodec case class ApplyWorkspaceEditResponse(applied: Boolean)
 @JsonCodec case class ApplyWorkspaceEditParams(
-    label: Option[String],
+    label: Option[String] = None,
     edit: WorkspaceEdit
 )
 
-@JsonCodec case class Hover(contents: Seq[MarkedString], range: Option[Range])
+@JsonCodec case class Hover(
+    contents: Seq[MarkedString],
+    range: Option[Range] = None
+)
 
 ///////////////////////////// Notifications ///////////////////////////////
 
@@ -234,9 +237,10 @@ import io.circe.generic.JsonCodec
 @JsonCodec case class CancelRequest(id: Int)
 
 @JsonCodec case class CodeActionResult(params: Seq[Command])
+
 @JsonCodec case class SignatureHelp(
     signatures: Seq[SignatureInformation],
-    activeSignature: Option[Int],
-    activeParameter: Option[Int]
+    activeSignature: Option[Int] = None,
+    activeParameter: Option[Int] = None
 )
 @JsonCodec case class WorkspaceSymbolResult(params: Seq[SymbolInformation])

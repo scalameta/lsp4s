@@ -1,14 +1,14 @@
 package scala.meta.jsonrpc
 
-import monix.eval.Task
-import io.circe.Json
-import io.circe.Decoder
-import io.circe.generic.JsonCodec
 import cats.syntax.either._
+import io.circe.Decoder
 import io.circe.Encoder
-import io.circe.JsonObject
+import io.circe.Json
+import io.circe.generic.JsonCodec
 import io.circe.syntax._
+import monix.eval.Task
 
+/** Supertype for all request, response and notification types. */
 sealed trait Message
 object Message {
   implicit val encoder: Encoder[Message] = new Encoder[Message] {
@@ -16,7 +16,9 @@ object Message {
       val json = a match {
         case r: Request => r.asJson
         case r: Notification => r.asJson
-        case r: Response => r.asJson
+        case r: Response.Success => r.asJson
+        case r: Response.Error => r.asJson
+        case Response.Empty => Json.obj()
       }
       json.mapObject(_.add("jsonrpc", "2.0".asJson))
     }
@@ -34,7 +36,7 @@ object Message {
     }
 }
 
-@JsonCodec case class Request(
+@JsonCodec final case class Request(
     method: String,
     params: Option[Json],
     id: RequestId
@@ -43,24 +45,23 @@ object Message {
     Response.error(ErrorObject(code, message, None), id)
 }
 
-@JsonCodec case class Notification(method: String, params: Option[Json])
+@JsonCodec final case class Notification(method: String, params: Option[Json])
     extends Message
 
+/** Supertype for all response types. */
 sealed trait Response extends Message {
-  def isSuccess: Boolean = this.isInstanceOf[Response.Success]
+  final def isSuccess: Boolean = this.isInstanceOf[Response.Success]
+  final def isError: Boolean = this.isInstanceOf[Response.Error]
 }
+
 object Response {
-  implicit val encoderResponse: Encoder[Response] = new Encoder[Response] {
-    override def apply(a: Response): Json = a match {
-      case r: Response.Success => r.asJson
-      case r: Response.Error => r.asJson
-      case Response.Empty => JsonObject.empty.asJson
-    }
-  }
-  @JsonCodec case class Success(result: Json, id: RequestId) extends Response
-  @JsonCodec case class Error(error: ErrorObject, id: RequestId)
+
+  @JsonCodec final case class Success(result: Json, id: RequestId)
+      extends Response
+  @JsonCodec final case class Error(error: ErrorObject, id: RequestId)
       extends Response
   case object Empty extends Response
+
   def empty: Response = Empty
   def ok(result: Json, id: RequestId): Response =
     success(result, id)
@@ -92,4 +93,5 @@ object Response {
     Error(ErrorObject(ErrorCode.ParseError, message, None), RequestId.Null)
   def methodNotFound(message: String, id: RequestId): Response.Error =
     Error(ErrorObject(ErrorCode.MethodNotFound, message, None), id)
+
 }

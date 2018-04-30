@@ -1,21 +1,23 @@
 package scala.meta.jsonrpc
 
+import io.circe.syntax._
+import io.circe.Json
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util
-import io.circe.Json
-import io.circe.syntax._
 import monix.reactive.Observable
-import scribe.Logger
+import scribe.LoggerSupport
+import scala.meta.internal.jsonrpc._
 
+/** A single raw un-parsed request, response or notification */
 final class BaseProtocolMessage(
     val header: Map[String, String],
     val content: Array[Byte]
 ) {
 
-  override def equals(obj: scala.Any): Boolean =
-    this.eq(obj.asInstanceOf[Object]) || {
+  override def equals(obj: Any): Boolean =
+    this.eq(obj.asInstanceOf[AnyRef]) || {
       obj match {
         case m: BaseProtocolMessage =>
           header.equals(m.header) &&
@@ -44,19 +46,19 @@ object BaseProtocolMessage {
 
   def fromInputStream(
       in: InputStream,
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     fromBytes(Observable.fromInputStream(in), logger)
 
   def fromBytes(
       in: Observable[Array[Byte]],
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     fromByteBuffers(in.map(ByteBuffer.wrap), logger)
 
   def fromByteBuffers(
       in: Observable[ByteBuffer],
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     in.executeWithFork.liftByOperator(new BaseProtocolMessageParser(logger))
 }

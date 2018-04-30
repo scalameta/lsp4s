@@ -1,16 +1,17 @@
-package scala.meta.jsonrpc
+package scala.meta.internal.jsonrpc
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Future
 import monix.execution.Ack
 import monix.execution.Scheduler
 import monix.reactive.observables.ObservableLike.Operator
 import monix.reactive.observers.Subscriber
-import scribe.Logger
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.Future
+import scala.meta.jsonrpc.BaseProtocolMessage
+import scribe.LoggerSupport
 
-final class BaseProtocolMessageParser(logger: Logger)
+final class BaseProtocolMessageParser(logger: LoggerSupport)
     extends Operator[ByteBuffer, BaseProtocolMessage] {
   override def apply(
       out: Subscriber[BaseProtocolMessage]

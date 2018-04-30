@@ -1,9 +1,10 @@
 package scala.meta.jsonrpc
 
-import io.circe.Json
 import io.circe.Decoder
 import io.circe.Encoder
+import io.circe.Json
 
+/** A JSON-RPC request ID, which can be a number, string or null */
 sealed trait RequestId
 object RequestId {
   def apply(n: Int): RequestId.String =
@@ -18,7 +19,7 @@ object RequestId {
     case RequestId.String(v) => v
     case RequestId.Null => Json.Null
   }
-  // implicit val encoder: Decoder =
+
   case class Number(value: Json) extends RequestId
   case class String(value: Json) extends RequestId
   case object Null extends RequestId

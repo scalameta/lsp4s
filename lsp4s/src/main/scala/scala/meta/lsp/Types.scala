@@ -1,10 +1,10 @@
 package scala.meta.lsp
 
-import cats.syntax.either._
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.Json
 import io.circe.generic.JsonCodec
+import cats.syntax.either._
 
 /**
  * Position in a text document expressed as zero-based line and character offset.
@@ -34,9 +34,9 @@ import io.circe.generic.JsonCodec
  */
 @JsonCodec case class Diagnostic(
     range: Range,
-    severity: Option[DiagnosticSeverity],
-    code: Option[String],
-    source: Option[String],
+    severity: Option[DiagnosticSeverity] = None,
+    code: Option[String] = None,
+    source: Option[String] = None,
     message: String
 )
 
@@ -67,7 +67,7 @@ import io.circe.generic.JsonCodec
 
 @JsonCodec case class VersionedTextDocumentIdentifier(
     uri: String,
-    version: Long
+    version: Double
 )
 
 /**
@@ -81,7 +81,7 @@ import io.circe.generic.JsonCodec
      * The version number of this document (it will strictly increase after each
      * change, including undo/redo).
      */
-    version: Long,
+    version: Double,
     text: String
 )
 @JsonCodec case class CompletionItem(
@@ -106,14 +106,14 @@ object MarkedString {
     case m: RawMarkedString => Encoder[RawMarkedString].apply(m)
     case m: MarkdownString => Encoder[MarkdownString].apply(m)
   }
-  implicit val decoder: Decoder[MarkedString] = Decoder.decodeJsonObject.emap {
-    obj =>
+  implicit val decoder: Decoder[MarkedString] =
+    Decoder.decodeJsonObject.emap { obj =>
       val json = Json.fromJsonObject(obj)
       val result =
         if (obj.contains("value")) json.as[RawMarkedString]
         else json.as[MarkdownString]
       result.leftMap(_.toString)
-  }
+    }
 }
 @JsonCodec case class RawMarkedString(language: String, value: String)
     extends MarkedString
@@ -122,12 +122,12 @@ object MarkedString {
 
 @JsonCodec case class ParameterInformation(
     label: String,
-    documentation: Option[String]
+    documentation: Option[String] = None
 )
 
 @JsonCodec case class SignatureInformation(
     label: String,
-    documentation: Option[String],
+    documentation: Option[String] = None,
     parameters: Seq[ParameterInformation]
 )
 
@@ -156,7 +156,7 @@ object MarkedString {
     name: String,
     kind: SymbolKind,
     location: Location,
-    containerName: Option[String]
+    containerName: Option[String] = None
 )
 
 /**
@@ -181,13 +181,13 @@ case class CodeLens(
     /**
      * The command this code lens represents.
      */
-    command: Option[Command],
+    command: Option[Command] = None,
     /**
      * An data entry field that is preserved on a code lens item between
      * a [CodeLensRequest](#CodeLensRequest) and a [CodeLensResolveRequest]
      * (#CodeLensResolveRequest)
      */
-    data: Option[Any]
+    data: Option[Any] = None
 )
 
 /**
@@ -216,11 +216,11 @@ case class CodeLens(
     /**
      * The range of the document that changed.
      */
-    range: Option[Range],
+    range: Option[Range] = None,
     /**
      * The length of the range that got replaced.
      */
-    rangeLength: Option[Int],
+    rangeLength: Option[Int] = None,
     /**
      * The new text of the document.
      */
@@ -240,7 +240,7 @@ case class CodeLens(
 
 @JsonCodec case class ExecuteCommandParams(
     command: String,
-    arguments: Option[Seq[Json]]
+    arguments: Option[Seq[Json]] = None
 )
 
 /**

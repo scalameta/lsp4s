@@ -1,32 +1,20 @@
-package scala.meta.jsonrpc
+package scala.meta.internal.jsonrpc
 
+import io.circe.syntax._
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import scala.concurrent.Future
-import io.circe.syntax._
 import monix.execution.Ack
 import monix.reactive.Observer
-import scribe.Logger
+import scala.concurrent.Future
+import scala.meta.jsonrpc.BaseProtocolMessage
+import scala.meta.jsonrpc.Message
+import scribe.LoggerSupport
 
-/**
- * A class to write Json RPC messages on an output stream, following the Language Server Protocol.
- * It produces the following format:
- *
- * <Header> '\r\n' <Content>
- *
- * Header := FieldName ':' FieldValue '\r\n'
- *
- * Currently there are two defined header fields:
- * - 'Content-Length' in bytes (required)
- * - 'Content-Type' (string), defaults to 'application/vscode-jsonrpc; charset=utf8'
- *
- * @note The header part is defined to be ASCII encoded, while the content part is UTF8.
- */
-class MessageWriter(out: Observer[ByteBuffer], logger: Logger) {
+class MessageWriter(out: Observer[ByteBuffer], logger: LoggerSupport) {
 
   /** Lock protecting the output stream, so multiple writes don't mix message chunks. */
   private val lock = new Object
@@ -78,4 +66,5 @@ object MessageWriter {
     val buffer = ByteBuffer.wrap(out.toByteArray, 0, out.size())
     buffer
   }
+
 }

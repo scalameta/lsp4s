@@ -1,5 +1,6 @@
 package scala.meta.jsonrpc
 
+import io.circe.Json
 import io.circe.jawn.parseByteBuffer
 import io.circe.syntax._
 import java.nio.ByteBuffer
@@ -31,7 +32,7 @@ final class Server private (
     logger: LoggerSupport
 ) {
 
-  private val activeClientRequests: TrieMap[Js, Cancelable] = TrieMap.empty
+  private val activeClientRequests: TrieMap[Json, Cancelable] = TrieMap.empty
   private val cancelNotification = Service
     .notification[CancelParams]("$/cancelRequest", logger) { params =>
       val id = params.id

@@ -1,9 +1,12 @@
 package scala.meta.jsonrpc
 
-/** A JSON-RPC error response code. */
-sealed abstract class ErrorCode(val value: Int) extends IntEnum
-object ErrorCode extends IntEnumCompanion[ErrorCode] {
+import scala.collection.immutable.IndexedSeq
+import enumeratum.values.IntEnum
+import enumeratum.values.IntEnumEntry
+import enumeratum.values.IntCirceEnum
 
+sealed abstract class ErrorCode(val value: Int) extends IntEnumEntry
+case object ErrorCode extends IntEnum[ErrorCode] with IntCirceEnum[ErrorCode] {
   case object ParseError extends ErrorCode(-32700)
   case object InvalidRequest extends ErrorCode(-32600)
   case object MethodNotFound extends ErrorCode(-32601)
@@ -11,7 +14,5 @@ object ErrorCode extends IntEnumCompanion[ErrorCode] {
   case object InternalError extends ErrorCode(-32603)
   case object ServerError extends ErrorCode(-32000)
   case object RequestCancelled extends ErrorCode(-32800)
-
-  val values: IndexedSeq[ErrorCode] = Enums.findValues[ErrorCode]
-
+  val values: IndexedSeq[ErrorCode] = findValues
 }

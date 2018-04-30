@@ -6,12 +6,12 @@ import scribe.format._
 
 object Logs {
 
-  object ClassNameLine extends FormatBlock {
+  object FilenameLine extends FormatBlock {
     override def format[M](record: LogRecord[M]): String = {
-      val idx = record.className.lastIndexOf('.')
+      val idx = record.fileName.lastIndexOf('/')
       val name =
-        if (idx < 0) record.className
-        else record.className.substring(idx + 1)
+        if (idx < 0) record.fileName
+        else record.fileName.substring(idx + 1)
       val line =
         if (record.lineNumber.isDefined) record.lineNumber.get.toString
         else ""
@@ -19,7 +19,7 @@ object Logs {
     }
   }
 
-  val Format = formatter"$level - $ClassNameLine $message$newLine"
+  val Format = formatter"$level - $FilenameLine $message$newLine"
 
   /** Update global settings for logging format. */
   def configure(): Unit = {

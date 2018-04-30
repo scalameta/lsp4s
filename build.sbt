@@ -28,23 +28,19 @@ lazy val V = new {
   val scala211 = "2.11.12"
   val scala212 = "2.12.4"
   val monix = "2.3.0"
-  val upickle = "0.6.5"
   val scribe = "2.3.3"
   val circe = "0.9.0"
+  val enumeratum = "1.5.13"
+  val enumeratumCirce = "1.5.15"
 }
 
 noPublish
 
-lazy val macros = project.settings(
-  libraryDependencies ++= List(
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value % Provided,
-    "com.lihaoyi" %% "upickle" % V.upickle
-  )
-)
-
 lazy val jsonrpc = project
   .settings(
     libraryDependencies ++= List(
+      "com.beachape" %% "enumeratum" % V.enumeratum,
+      "com.beachape" %% "enumeratum-circe" % V.enumeratumCirce,
       "io.circe" %% "circe-core" % V.circe,
       "io.circe" %% "circe-generic" % V.circe,
       "io.circe" %% "circe-generic-extras" % V.circe,
@@ -53,7 +49,6 @@ lazy val jsonrpc = project
       "io.monix" %% "monix" % V.monix
     )
   )
-  .dependsOn(macros)
 
 lazy val lsp4s = project.dependsOn(jsonrpc)
 

@@ -72,7 +72,10 @@ object Service {
       case Notification(`method`, params) =>
         params.getOrElse(Json.Null).as[A] match {
           case Left(err) =>
-            fail(s"Failed to parse notification $message. Errors: $err")
+            fail(
+              s"""Failed to decode notification ${message.asJson.spaces4}.
+                 |Errors: ${err.getMessage()}""".stripMargin
+            )
           case Right(value) =>
             f.apply(value).map(_ => Response.empty)
         }

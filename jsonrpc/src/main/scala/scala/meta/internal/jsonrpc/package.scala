@@ -9,6 +9,10 @@ import scribe.LoggerSupport
 
 package object jsonrpc {
 
+  implicit class XtensionEither[A](val e: Either[Throwable, A]) extends AnyVal {
+    def get: A = e.fold(throw _, identity)
+  }
+
   implicit class XtensionObserverCompanion[A](val `_`: Observer.type)
       extends AnyVal {
     def fromOutputStream(

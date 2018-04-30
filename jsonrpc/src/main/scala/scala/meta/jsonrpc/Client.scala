@@ -18,6 +18,7 @@ import io.circe.syntax._
 import cats.syntax.either._
 import io.circe.Decoder
 import io.circe.Encoder
+import monix.execution.UncaughtExceptionReporter
 
 /**
  * A JSON-RPC client to send+receive requests+responses+notifications with support to initiate requests.
@@ -147,6 +148,10 @@ final class Client private (
 }
 
 object Client {
+  def empty(logger: LoggerSupport): Client =
+    Client(Observer.empty(new UncaughtExceptionReporter {
+      override def reportFailure(ex: Throwable): Unit = logger.error(ex)
+    }), scribe.Logger.root)
   def apply(
       out: Observer[ByteBuffer],
       logger: LoggerSupport

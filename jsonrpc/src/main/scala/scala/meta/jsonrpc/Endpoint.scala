@@ -39,31 +39,29 @@ import scala.concurrent.Future
  * }}}
  *
  * @param method the name of this endpoint for value inside "method" field.
- * @tparam Params the request type for value inside "params" field.
- * @tparam Result the response type for value inside "result" field.
- *                Is Unit in case of notifications.
+ * @tparam A the request type for value inside "params" field.
+ * @tparam B the response type for value inside "result" field.
+ *           Is Unit in case of notifications.
  */
-class Endpoint[Params: Encoder: Decoder, Result: Encoder: Decoder](
-    val method: String
-) {
+class Endpoint[A: Encoder: Decoder, B: Encoder: Decoder](val method: String) {
 
-  def encoderParams: Encoder[Params] = Encoder[Params]
-  def encoderResult: Encoder[Result] = Encoder[Result]
+  def encoderParams: Encoder[A] = Encoder[A]
+  def decoderParams: Decoder[A] = Decoder[A]
 
-  def decoderParams: Decoder[Params] = Decoder[Params]
-  def decoderResult: Decoder[Result] = Decoder[Result]
+  def encoderResult: Encoder[B] = Encoder[B]
+  def decoderResult: Decoder[B] = Decoder[B]
 
   /** Initiate request to be responded by client. */
-  def request(request: Params)(
+  def request(request: A)(
       implicit client: Client
-  ): Task[Either[Response.Error, Result]] =
-    client.request[Params, Result](method, request)
+  ): Task[Either[Response.Error, B]] =
+    client.request[A, B](method, request)
 
   /** Send notification request to be handled by client without response. */
-  def notify(notification: Params)(
+  def notify(notification: A)(
       implicit client: Client
   ): Future[Ack] =
-    client.notify[Params](method, notification)
+    client.notify[A](method, notification)
 
 }
 

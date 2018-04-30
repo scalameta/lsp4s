@@ -1,5 +1,6 @@
 package scala.meta.internal.jsonrpc
 
+import io.circe.syntax._
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -27,8 +28,9 @@ class MessageWriter(out: Observer[ByteBuffer], logger: LoggerSupport) {
    */
   def write(msg: Message): Future[Ack] = lock.synchronized {
     baos.reset()
-    val protocol = BaseProtocolMessage(msg)
-    logger.trace(s" --> ${msg.asJsonString}")
+    val json = msg.asJson
+    val protocol = BaseProtocolMessage.fromJson(json)
+    logger.trace(s" --> $json")
     val byteBuffer = MessageWriter.write(protocol, baos, headerOut)
     out.onNext(byteBuffer)
   }

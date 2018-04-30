@@ -1,45 +1,51 @@
 package scala.meta.jsonrpc
 
+import cats.syntax.either._
+import io.circe.Decoder
+import io.circe.Encoder
+import io.circe.Json
+import io.circe.generic.JsonCodec
+import io.circe.syntax._
 import monix.eval.Task
-import scala.meta.jsonrpc.pickle._
-import ujson.Js
 
 /** Supertype for all request, response and notification types. */
 sealed trait Message
 object Message {
-  implicit val rw: ReadWriter[Message] = readwriter[Js].bimap[Message](
-    { msg =>
-      val obj = msg match {
-        case r: Request => writeJs(r)
-        case r: Notification => writeJs(r)
-        case r: Response.Success => writeJs(r)
-        case r: Response.Error => writeJs(r)
-        case Response.Empty => Js.Obj()
+  implicit val encoder: Encoder[Message] = new Encoder[Message] {
+    override def apply(a: Message): Json = {
+      val json = a match {
+        case r: Request => r.asJson
+        case r: Notification => r.asJson
+        case r: Response.Success => r.asJson
+        case r: Response.Error => r.asJson
+        case Response.Empty => Json.obj()
       }
-      obj.obj.put("jsonrpc", Js.Str("2.0"))
-      obj
-    }, { js =>
-      if (js.obj.contains("id")) {
-        if (js.obj.contains("error")) read[Response.Error](js)
-        else if (js.obj.contains("result")) read[Response.Success](js)
-        else read[Request](js)
-      } else {
-        read[Notification](js)
-      }
+      json.mapObject(_.add("jsonrpc", "2.0".asJson))
     }
-  )
+  }
+  implicit val decoder: Decoder[Message] =
+    Decoder.decodeJsonObject.emap { obj =>
+      val json = Json.fromJsonObject(obj)
+      val result =
+        if (obj.contains("id"))
+          if (obj.contains("error")) json.as[Response.Error]
+          else if (obj.contains("result")) json.as[Response.Success]
+          else json.as[Request]
+        else json.as[Notification]
+      result.leftMap(_.toString)
+    }
 }
 
-@json final case class Request(
+@JsonCodec final case class Request(
     method: String,
-    params: Option[Js],
+    params: Option[Json],
     id: RequestId
 ) extends Message {
   def toError(code: ErrorCode, message: String): Response =
     Response.error(ErrorObject(code, message, None), id)
 }
 
-@json final case class Notification(method: String, params: Option[Js])
+@JsonCodec final case class Notification(method: String, params: Option[Json])
     extends Message
 
 /** Supertype for all response types. */
@@ -50,17 +56,18 @@ sealed trait Response extends Message {
 
 object Response {
 
-  @json final case class Success(result: Js, id: RequestId) extends Response
-  @json final case class Error(error: ErrorObject, id: RequestId)
+  @JsonCodec final case class Success(result: Json, id: RequestId)
+      extends Response
+  @JsonCodec final case class Error(error: ErrorObject, id: RequestId)
       extends Response
   case object Empty extends Response
 
   def empty: Response = Empty
-  def ok(result: Js, id: RequestId): Response =
+  def ok(result: Json, id: RequestId): Response =
     success(result, id)
   def okAsync[T](value: T): Task[Either[Response.Error, T]] =
     Task(Right(value))
-  def success(result: Js, id: RequestId): Response =
+  def success(result: Json, id: RequestId): Response =
     Success(result, id)
   def error(error: ErrorObject, id: RequestId): Response.Error =
     Error(error, id)
@@ -77,10 +84,10 @@ object Response {
       ErrorObject(ErrorCode.InvalidRequest, message, None),
       RequestId.Null
     )
-  def cancelled(id: Js): Response.Error =
+  def cancelled(id: Json): Response.Error =
     Error(
       ErrorObject(ErrorCode.RequestCancelled, "", None),
-      scala.meta.jsonrpc.pickle.read[RequestId](id)
+      id.as[RequestId].getOrElse(RequestId.Null)
     )
   def parseError(message: String): Response.Error =
     Error(ErrorObject(ErrorCode.ParseError, message, None), RequestId.Null)

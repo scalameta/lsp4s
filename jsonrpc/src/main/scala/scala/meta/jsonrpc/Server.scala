@@ -1,5 +1,8 @@
 package scala.meta.jsonrpc
 
+import io.circe.jawn.parseByteBuffer
+import io.circe.syntax._
+import java.nio.ByteBuffer
 import monix.eval.Task
 import monix.execution.Cancelable
 import monix.execution.Scheduler
@@ -10,7 +13,6 @@ import scala.concurrent.duration.Duration
 import scala.meta.internal.jsonrpc._
 import scala.util.control.NonFatal
 import scribe.LoggerSupport
-import ujson.Js
 
 /**
  * A JSON-RPC server to send+receive requests+responses+notifications with support to handle requests.
@@ -100,17 +102,17 @@ final class Server private (
                 Response.internalError(e.getMessage, request.id)
             }
             val runningResponse = response.runAsync(requestScheduler)
-            activeClientRequests.put(request.id.asJsonEncoded, runningResponse)
+            activeClientRequests.put(request.id.asJson, runningResponse)
             Task.fromFuture(runningResponse)
         }
 
     }
 
   private def handleMessage(message: BaseProtocolMessage): Task[Response] =
-    message.content.asJsonParsed match {
+    parseByteBuffer(ByteBuffer.wrap(message.content)) match {
       case Left(err) => Task.now(Response.parseError(err.toString))
       case Right(json) =>
-        json.asJsonDecoded[Message] match {
+        json.as[Message] match {
           case Left(err) => Task.now(Response.invalidRequest(err.toString))
           case Right(msg) => handleValidMessage(msg)
         }

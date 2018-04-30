@@ -1,10 +1,11 @@
 package scala.meta.jsonrpc
 
+import io.circe.Decoder
+import io.circe.Encoder
+import io.circe.Json
+import io.circe.syntax._
 import monix.eval.Task
-import scala.meta.internal.jsonrpc._
-import scala.meta.jsonrpc.pickle.ReadWriter
 import scribe.LoggerSupport
-import ujson.Js
 
 /** Handler for a single endpoint. */
 trait Service {
@@ -27,18 +28,18 @@ object Service {
    * @tparam A type inside "params" field of the request to be decoded.
    * @tparam B type inside "result" field of the response to be encoded.
    */
-  def request[A: ReadWriter, B: ReadWriter](method: String)(
+  def request[A: Encoder: Decoder, B: Encoder: Decoder](method: String)(
       f: A => Task[Either[Response.Error, B]]
   ): Service = new Service {
     override def methodName: String = method
     override def handle(message: Message): Task[Response] = message match {
       case Request(`method`, params, id) =>
-        params.getOrElse(Js.Null).asJsonDecoded[A] match {
+        params.getOrElse(Json.Null).as[A] match {
           case Left(err) =>
             Task(Response.invalidParams(err.toString, id))
           case Right(value) =>
             f.apply(value).map {
-              case Right(response) => Response.ok(response.asJsonEncoded, id)
+              case Right(response) => Response.ok(response.asJson, id)
               // Service[A, ...] doesn't have access to the request ID so
               // by convention it's OK to set the ID to null by default
               // and we fill it in here instead.
@@ -59,7 +60,7 @@ object Service {
    * @param f handler for this service.
    * @tparam A type inside "params" field of the notification to be decoded.
    */
-  def notification[A: ReadWriter](method: String, logger: LoggerSupport)(
+  def notification[A: Encoder: Decoder](method: String, logger: LoggerSupport)(
       f: A => Task[Unit]
   ): Service = new Service {
     override def methodName: String = method
@@ -69,7 +70,7 @@ object Service {
     }
     override def handle(message: Message): Task[Response] = message match {
       case Notification(`method`, params) =>
-        params.getOrElse(Js.Null).asJsonDecoded[A] match {
+        params.getOrElse(Json.Null).as[A] match {
           case Left(err) =>
             fail(s"Failed to parse notification $message. Errors: $err")
           case Right(value) =>

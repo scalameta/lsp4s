@@ -12,9 +12,12 @@ import monix.reactive.Observer
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-import scala.meta.jsonrpc.pickle.ReadWriter
 import scala.meta.internal.jsonrpc._
 import scribe.LoggerSupport
+import io.circe.syntax._
+import cats.syntax.either._
+import io.circe.Decoder
+import io.circe.Encoder
 
 /**
  * A JSON-RPC client to send+receive requests+responses+notifications with support to initiate requests.
@@ -40,7 +43,10 @@ final class Client private (
       endpoint: Endpoint[A, Unit],
       notification: A
   ): Future[Ack] =
-    notify[A](endpoint.method, notification)(endpoint.readwriterParams)
+    notify[A](endpoint.method, notification)(
+      endpoint.encoderParams,
+      endpoint.decoderParams
+    )
 
   /**
    * Send notification to client with custom RPC method.
@@ -49,11 +55,11 @@ final class Client private (
    *         to the wire. Observe that it's not possible for the client
    *         to respond to notifications.
    */
-  def notify[A: ReadWriter](
+  def notify[A: Encoder: Decoder](
       method: String,
       notification: A
   ): Future[Ack] =
-    writer.write(Notification(method, Some(notification.asJsonEncoded)))
+    writer.write(Notification(method, Some(notification.asJson)))
 
   /** Send request to client using an Endpoint */
   def request[A, B](
@@ -61,8 +67,10 @@ final class Client private (
       req: A
   ): Task[Either[Response.Error, B]] =
     request[A, B](endpoint.method, req)(
-      endpoint.readwriterParams,
-      endpoint.readwriterResult
+      endpoint.encoderParams,
+      endpoint.decoderParams,
+      endpoint.encoderResult,
+      endpoint.decoderResult
     )
 
   /**
@@ -74,14 +82,14 @@ final class Client private (
    * @return The response from the client, which is either a successful
    *         value or a JSON-RPC error.
    */
-  def request[A: ReadWriter, B: ReadWriter](
+  def request[A: Encoder: Decoder, B: Encoder: Decoder](
       method: String,
       request: A
   ): Task[Either[Response.Error, B]] = Task.defer {
     val nextId = RequestId(counter.incrementAndGet())
     val response = Task.create[Response] { (out, cb) =>
       val scheduled = out.scheduleOnce(Duration(0, "s")) {
-        val json = Request(method, Some(request.asJsonEncoded), nextId)
+        val json = Request(method, Some(request.asJson), nextId)
         activeServerRequests.put(nextId, cb)
         writer.write(json)
       }
@@ -101,7 +109,7 @@ final class Client private (
       case err: Response.Error =>
         Left(err)
       case Response.Success(result, _) =>
-        result.asJsonDecoded[B].leftMap { err =>
+        result.as[B].leftMap { err =>
           Response.invalidParams(err.toString, nextId)
         }
     }

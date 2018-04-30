@@ -1,12 +1,13 @@
 package scala.meta.jsonrpc
 
+import io.circe.syntax._
+import io.circe.Json
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util
 import monix.reactive.Observable
 import scribe.LoggerSupport
-import ujson.Js
 import scala.meta.internal.jsonrpc._
 
 /** A single raw un-parsed request, response or notification */
@@ -34,9 +35,9 @@ object BaseProtocolMessage {
   val ContentLen = "Content-Length"
 
   def apply(msg: Message): BaseProtocolMessage =
-    fromBytes(msg.asBytesEncoded)
-  def fromJson(json: Js): BaseProtocolMessage =
-    fromBytes(json.asBytesEncoded)
+    fromJson(msg.asJson)
+  def fromJson(json: Json): BaseProtocolMessage =
+    fromBytes(json.noSpaces.getBytes(StandardCharsets.UTF_8))
   def fromBytes(bytes: Array[Byte]): BaseProtocolMessage =
     new BaseProtocolMessage(
       Map("Content-Length" -> bytes.length.toString),

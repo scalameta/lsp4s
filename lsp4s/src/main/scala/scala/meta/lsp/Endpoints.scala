@@ -5,7 +5,6 @@ import scala.meta.jsonrpc._
 import scala.meta.jsonrpc.Endpoint._
 import scala.meta.jsonrpc.Response.Error
 import monix.eval.Task
-import ujson.Js
 
 object Lifecycle extends Lifecycle
 trait Lifecycle {

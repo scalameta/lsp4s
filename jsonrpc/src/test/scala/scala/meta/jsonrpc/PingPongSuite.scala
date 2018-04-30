@@ -5,7 +5,6 @@ import minitest.SimpleTestSuite
 import monix.execution.Cancelable
 import monix.execution.Scheduler.Implicits.global
 import scala.collection.JavaConverters._
-import scala.meta.jsonrpc.pickle._
 import scala.meta.jsonrpc.testkit._
 import scribe.Logger
 

@@ -1,9 +1,10 @@
 package scala.meta.jsonrpc
 
+import io.circe.Decoder
+import io.circe.Encoder
 import monix.eval.Task
 import monix.execution.Ack
 import scala.concurrent.Future
-import scala.meta.jsonrpc.pickle.ReadWriter
 
 /**
  * A single JSON-RPC method with it's request and response types.
@@ -42,13 +43,15 @@ import scala.meta.jsonrpc.pickle.ReadWriter
  * @tparam Result the response type for value inside "result" field.
  *                Is Unit in case of notifications.
  */
-class Endpoint[Params: ReadWriter, Result: ReadWriter](val method: String) {
+class Endpoint[Params: Encoder: Decoder, Result: Encoder: Decoder](
+    val method: String
+) {
 
-  /** JSON encoder/decoder for the Params type. */
-  def readwriterParams: ReadWriter[Params] = implicitly[ReadWriter[Params]]
+  def encoderParams: Encoder[Params] = Encoder[Params]
+  def encoderResult: Encoder[Result] = Encoder[Result]
 
-  /** JSON encoder/decoder for the Result type. */
-  def readwriterResult: ReadWriter[Result] = implicitly[ReadWriter[Result]]
+  def decoderParams: Decoder[Params] = Decoder[Params]
+  def decoderResult: Decoder[Result] = Decoder[Result]
 
   /** Initiate request to be responded by client. */
   def request(request: Params)(
@@ -66,12 +69,12 @@ class Endpoint[Params: ReadWriter, Result: ReadWriter](val method: String) {
 
 object Endpoint {
 
-  def request[A: ReadWriter, B: ReadWriter](
+  def request[A: Encoder: Decoder, B: Encoder: Decoder](
       method: String
   ): Endpoint[A, B] =
     new Endpoint(method)
 
-  def notification[A: ReadWriter](method: String): Endpoint[A, Unit] =
+  def notification[A: Encoder: Decoder](method: String): Endpoint[A, Unit] =
     new Endpoint(method)
 
 }

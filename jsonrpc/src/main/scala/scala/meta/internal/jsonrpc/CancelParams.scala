@@ -1,6 +1,6 @@
 package scala.meta.internal.jsonrpc
 
-import scala.meta.jsonrpc.json
-import ujson.Js
+import io.circe.generic.JsonCodec
+import io.circe.Json
 
-@json case class CancelParams(id: Js)
+@JsonCodec case class CancelParams(id: Json)

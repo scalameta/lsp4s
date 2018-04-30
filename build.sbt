@@ -30,6 +30,7 @@ lazy val V = new {
   val monix = "2.3.0"
   val upickle = "0.6.5"
   val scribe = "2.3.3"
+  val circe = "0.9.0"
 }
 
 noPublish
@@ -44,6 +45,10 @@ lazy val macros = project.settings(
 lazy val jsonrpc = project
   .settings(
     libraryDependencies ++= List(
+      "io.circe" %% "circe-core" % V.circe,
+      "io.circe" %% "circe-generic" % V.circe,
+      "io.circe" %% "circe-generic-extras" % V.circe,
+      "io.circe" %% "circe-parser" % V.circe,
       "com.outr" %% "scribe" % V.scribe,
       "io.monix" %% "monix" % V.monix
     )

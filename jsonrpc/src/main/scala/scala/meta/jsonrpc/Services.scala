@@ -20,8 +20,10 @@ final class Services private (
   )(f: A => Task[Either[Response.Error, B]]): Services =
     addService(
       Service.request[A, B](endpoint.method)(f)(
-        endpoint.readwriterParams,
-        endpoint.readwriterResult
+        endpoint.encoderParams,
+        endpoint.decoderParams,
+        endpoint.encoderResult,
+        endpoint.decoderResult
       )
     )
 
@@ -33,7 +35,8 @@ final class Services private (
   )(f: A => Task[Unit]): Services =
     addService(
       Service.notification[A](endpoint.method, logger)(f)(
-        endpoint.readwriterParams
+        endpoint.encoderParams,
+        endpoint.decoderParams
       )
     )
 

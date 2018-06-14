@@ -1,9 +1,38 @@
 inThisBuild(
   List(
-    version ~= { dynVer =>
-      if (sys.env.contains("TRAVIS_TAG")) dynVer
-      else dynVer + "-SNAPSHOT"
-    },
+    dynverSonatypeSnapshots := true, // TODO: remove after https://github.com/olafurpg/sbt-ci-release/pull/7 is released
+    organization := "org.scalameta",
+    homepage := Some(url("https://github.com/scalameta/lsp4s")),
+    publishMavenStyle := true,
+    licenses := Seq(
+      "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+    ),
+    developers := List(
+      Developer(
+        "laughedelic",
+        "Alexey Alekhin",
+        "laughedelic@gmail.com",
+        url("https://github.com/laughedelic")
+      ),
+      Developer(
+        "gabro",
+        "Gabriele Petronella",
+        "gabriele@buildo.io",
+        url("https://github.com/gabro")
+      ),
+      Developer(
+        "jvican",
+        "Jorge Vicente Cantero",
+        "jorgevc@fastmail.es",
+        url("https://jvican.github.io/")
+      ),
+      Developer(
+        "olafurpg",
+        "Ólafur Páll Geirsson",
+        "olafurpg@gmail.com",
+        url("https://geirsson.com")
+      )
+    ),
     scalaVersion := V.scala212,
     scalacOptions ++= List(
       "-Yrangepos",
@@ -29,6 +58,8 @@ inThisBuild(
 
 name := "lsp4sRoot"
 
+skip in publish := true
+
 lazy val V = new {
   val scala211 = "2.11.11"
   val scala212 = "2.12.4"
@@ -37,12 +68,6 @@ lazy val V = new {
   val cats = "1.0.1"
   val monix = "2.3.0"
 }
-
-lazy val noPublish = List(
-  publishTo := None,
-  publishArtifact := false,
-  skip in publish := true
-)
 
 lazy val jsonrpc = project
   .settings(
@@ -68,10 +93,3 @@ lazy val lsp4s = project
     crossScalaVersions := List(V.scala211, V.scala212)
   )
   .dependsOn(jsonrpc)
-
-// For some reason, it doesn't work if this is defined in globalSettings in PublishPlugin.
-inScope(Global)(
-  Seq(
-    PgpKeys.pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray())
-  )
-)

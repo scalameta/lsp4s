@@ -10,7 +10,7 @@ import scala.concurrent.Future
 import io.circe.syntax._
 import monix.execution.Ack
 import monix.reactive.Observer
-import scribe.Logger
+import scribe.LoggerSupport
 
 /**
  * A class to write Json RPC messages on an output stream, following the Language Server Protocol.
@@ -26,7 +26,7 @@ import scribe.Logger
  *
  * @note The header part is defined to be ASCII encoded, while the content part is UTF8.
  */
-class MessageWriter(out: Observer[ByteBuffer], logger: Logger) {
+class MessageWriter(out: Observer[ByteBuffer], logger: LoggerSupport) {
 
   /** Lock protecting the output stream, so multiple writes don't mix message chunks. */
   private val lock = new Object

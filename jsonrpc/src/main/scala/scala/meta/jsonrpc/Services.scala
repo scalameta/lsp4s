@@ -5,7 +5,7 @@ import io.circe.Encoder
 import io.circe.Json
 import io.circe.syntax._
 import monix.eval.Task
-import scribe.Logger
+import scribe.LoggerSupport
 
 trait Service[A, B] {
   def handle(request: A): Task[B]
@@ -44,7 +44,7 @@ object Service {
     }
   }
 
-  def notification[A: Decoder](method: String, logger: Logger)(
+  def notification[A: Decoder](method: String, logger: LoggerSupport)(
       f: Service[A, Unit]
   ): NamedJsonRpcService =
     new NamedJsonRpcService {
@@ -71,12 +71,12 @@ object Service {
 }
 
 object Services {
-  def empty(logger: Logger): Services = new Services(Nil, logger)
+  def empty(logger: LoggerSupport): Services = new Services(Nil, logger)
 }
 
 class Services private (
     val services: List[NamedJsonRpcService],
-    logger: Logger
+    logger: LoggerSupport
 ) {
 
   def request[A, B](endpoint: Endpoint[A, B])(f: A => B): Services =

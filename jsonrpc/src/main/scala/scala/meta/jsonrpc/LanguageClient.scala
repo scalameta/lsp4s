@@ -17,11 +17,11 @@ import scala.collection.concurrent.TrieMap
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import MonixEnrichments._
-import scribe.Logger
+import scribe.LoggerSupport
 
-class LanguageClient(out: Observer[ByteBuffer], logger: Logger)
+class LanguageClient(out: Observer[ByteBuffer], logger: LoggerSupport)
     extends JsonRpcClient {
-  def this(out: OutputStream, logger: Logger) =
+  def this(out: OutputStream, logger: LoggerSupport) =
     this(Observer.fromOutputStream(out, logger), logger)
   private val writer = new MessageWriter(out, logger)
   private val counter: AtomicInt = Atomic(1)

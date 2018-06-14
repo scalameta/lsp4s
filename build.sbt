@@ -36,6 +36,7 @@ inThisBuild(
     scalaVersion := V.scala212,
     scalacOptions ++= List(
       "-Yrangepos",
+      "-Yrangepos",
       "-deprecation",
       // -Xlint is unusable because of
       // https://github.com/scala/bug/issues/10448
@@ -62,7 +63,7 @@ skip in publish := true
 
 lazy val V = new {
   val scala211 = "2.11.11"
-  val scala212 = "2.12.4"
+  val scala212 = "2.12.6"
   val enumeratum = "1.5.12"
   val circe = "0.9.0"
   val cats = "1.0.1"
@@ -75,7 +76,7 @@ lazy val jsonrpc = project
     // NOTE: there are plans to drop most of these dependencies
     // https://github.com/scalameta/metals/issues/285
     libraryDependencies ++= List(
-      "com.outr" %% "scribe" % "2.3.3",
+      "com.outr" %% "scribe" % "2.5.0",
       "com.beachape" %% "enumeratum" % V.enumeratum,
       "com.beachape" %% "enumeratum-circe" % "1.5.15",
       "com.lihaoyi" %% "pprint" % "0.5.3",

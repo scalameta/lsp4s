@@ -7,7 +7,7 @@ import java.util
 import io.circe.Json
 import io.circe.syntax._
 import monix.reactive.Observable
-import scribe.Logger
+import scribe.LoggerSupport
 
 final class BaseProtocolMessage(
     val header: Map[String, String],
@@ -44,19 +44,19 @@ object BaseProtocolMessage {
 
   def fromInputStream(
       in: InputStream,
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     fromBytes(Observable.fromInputStream(in), logger)
 
   def fromBytes(
       in: Observable[Array[Byte]],
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     fromByteBuffers(in.map(ByteBuffer.wrap), logger)
 
   def fromByteBuffers(
       in: Observable[ByteBuffer],
-      logger: Logger
+      logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
     in.executeWithFork.liftByOperator(new BaseProtocolMessageParser(logger))
 }

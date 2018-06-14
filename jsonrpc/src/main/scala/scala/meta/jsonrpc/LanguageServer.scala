@@ -12,14 +12,14 @@ import scala.collection.concurrent.TrieMap
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.control.NonFatal
-import scribe.Logger
+import scribe.LoggerSupport
 
 final class LanguageServer(
     in: Observable[BaseProtocolMessage],
     client: LanguageClient,
     services: Services,
     requestScheduler: Scheduler,
-    logger: Logger
+    logger: LoggerSupport
 ) {
   private val activeClientRequests: TrieMap[Json, Cancelable] = TrieMap.empty
   private val cancelNotification =

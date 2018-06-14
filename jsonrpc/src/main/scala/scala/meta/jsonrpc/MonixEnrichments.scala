@@ -8,7 +8,7 @@ import monix.execution.Cancelable
 import monix.execution.Scheduler
 import monix.reactive.Observable
 import monix.reactive.Observer
-import scribe.Logger
+import scribe.LoggerSupport
 
 object MonixEnrichments {
 
@@ -56,7 +56,7 @@ object MonixEnrichments {
       extends AnyVal {
     def fromOutputStream(
         out: OutputStream,
-        logger: Logger
+        logger: LoggerSupport
     ): Observer.Sync[ByteBuffer] = {
       new Observer.Sync[ByteBuffer] {
         private[this] var isClosed: Boolean = false

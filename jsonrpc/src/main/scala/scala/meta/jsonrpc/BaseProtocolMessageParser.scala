@@ -8,9 +8,9 @@ import monix.execution.Ack
 import monix.execution.Scheduler
 import monix.reactive.observables.ObservableLike.Operator
 import monix.reactive.observers.Subscriber
-import scribe.Logger
+import scribe.LoggerSupport
 
-final class BaseProtocolMessageParser(logger: Logger)
+final class BaseProtocolMessageParser(logger: LoggerSupport)
     extends Operator[ByteBuffer, BaseProtocolMessage] {
   override def apply(
       out: Subscriber[BaseProtocolMessage]

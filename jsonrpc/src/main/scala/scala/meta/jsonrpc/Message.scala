@@ -3,11 +3,12 @@ package scala.meta.jsonrpc
 import monix.eval.Task
 import io.circe.Json
 import io.circe.Decoder
-import io.circe.generic.JsonCodec
-import cats.syntax.either._
 import io.circe.Encoder
 import io.circe.JsonObject
+import io.circe.derivation.JsonCodec
 import io.circe.syntax._
+
+import cats.syntax.either._
 
 sealed trait Message
 object Message {

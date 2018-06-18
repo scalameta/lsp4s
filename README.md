@@ -157,16 +157,21 @@ libraryDependencies += "org.scalameta" %% "jsonrpc" % "VERSION"
 
 ### Used by
 
-The modules `lsp4s` and `jsonrpc` are used by the following projects:
+The modules `lsp4s` and `jsonrpc` are used in the following projects:
 
-- [Metals][]: language server for Scala
-- [IntelliJ Scala][]: the most widely used IDE for Scala
+- [Metals][]: language server for Scala uses `lsp4s` to communicate with editors
+  and `jsonrpc` to communicate with sbt server as a client.
+- [IntelliJ Scala][]: the most widely used IDE for Scala uses `jsonrpc` to
+  communicate with build tools through the Build Server Protocol.
 - [Bloop][]: Scala build server and command-line tool for fast compile and test
-  workflows
-- [Build Server Protocol][bsp]: a complementary protocol to LSP targeted for
-  build tools.
+  workflows that uses `jsonrpc` to communicate with IDEs through the Build
+  Server Protocol.
+- [Build Server Protocol][bsp]: a complementary protocol to the Language Server
+  Protocol targeted for build tools that uses `jsonrpc` to provide a `bsp` Scala
+  library similar to the `lsp4s` module in this project.
 
-Are you using lsp4s? Submit a pull request adding your project to the list :)
+Are you using `lsp4s` or `jsonrpc`? Submit a pull request adding your project to
+the list :)
 
 [bsp]: https://github.com/scalacenter/bsp/blob/master/docs/bsp.md
 [bloop]: https://scalacenter.github.io/bloop/

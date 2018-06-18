@@ -3,6 +3,8 @@ package scala.meta.jsonrpc
 import io.circe.Decoder
 import io.circe.Encoder
 import monix.eval.Task
+import monix.execution.Ack
+import scala.concurrent.Future
 
 class Endpoint[A: Decoder: Encoder, B: Decoder: Encoder](val method: String) {
   def encoderA: Encoder[A] = implicitly
@@ -16,7 +18,7 @@ class Endpoint[A: Decoder: Encoder, B: Decoder: Encoder](val method: String) {
     client.request[A, B](method, request)
   def notify(
       notification: A
-  )(implicit client: JsonRpcClient, ev: B =:= Unit): Unit =
+  )(implicit client: JsonRpcClient): Future[Ack] =
     client.notify[A](method, notification)
 }
 

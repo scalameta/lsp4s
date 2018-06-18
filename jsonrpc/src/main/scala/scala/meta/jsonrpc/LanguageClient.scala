@@ -85,3 +85,8 @@ class LanguageClient(out: Observer[ByteBuffer], logger: LoggerSupport)
     }
   }
 }
+
+object LanguageClient {
+  def fromOutputStream(out: OutputStream, logger: LoggerSupport) =
+    new LanguageClient(Observer.fromOutputStream(out, logger), logger)
+}

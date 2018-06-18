@@ -12,14 +12,11 @@ jobs:
     - env: TEST="scalafmt"
       script: ./bin/scalafmt --test
     - env: TEST="2.11"
-      script:
-        - sbt ++2.11.12 lsp4s/test
-        - sbt ++2.11.12 jsonrpc/test
-    - env: TEST="sbt test"
-      script:
-        - sbt test
+      script: sbt ++2.11.12 test
+    - env: TEST="2.12"
+      script: sbt test
     - stage: release
-      script: sbt ci-release
+      script: travis_wait 60 sbt ci-release
 
 cache:
   directories:

@@ -1,6 +1,5 @@
 inThisBuild(
   List(
-    dynverSonatypeSnapshots := true, // TODO: remove after https://github.com/olafurpg/sbt-ci-release/pull/7 is released
     organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/lsp4s")),
     publishMavenStyle := true,
@@ -62,13 +61,14 @@ name := "lsp4sRoot"
 skip in publish := true
 
 lazy val V = new {
-  val scala211 = "2.11.11"
+  val scala211 = "2.11.12"
   val scala212 = "2.12.6"
-  val enumeratum = "1.5.12"
-  val circe = "0.9.0"
+  val enumeratum = "1.5.13"
+  val enumeratumCirce = "1.5.17"
+  val circe = "0.9.3"
   val circeDerivation = "0.9.0-M4"
-  val cats = "1.0.1"
-  val monix = "2.3.0"
+  val cats = "1.1.0"
+  val monix = "2.3.3"
 }
 
 lazy val jsonrpc = project
@@ -79,8 +79,7 @@ lazy val jsonrpc = project
     libraryDependencies ++= List(
       "com.outr" %% "scribe" % "2.5.0",
       "com.beachape" %% "enumeratum" % V.enumeratum,
-      "com.beachape" %% "enumeratum-circe" % "1.5.15",
-      "com.lihaoyi" %% "pprint" % "0.5.3",
+      "com.beachape" %% "enumeratum-circe" % V.enumeratumCirce,
       "io.circe" %% "circe-core" % V.circe,
       "io.circe" %% "circe-derivation" % V.circeDerivation,
       "io.circe" %% "circe-parser" % V.circe,

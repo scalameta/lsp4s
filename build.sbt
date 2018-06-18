@@ -66,6 +66,7 @@ lazy val V = new {
   val scala212 = "2.12.6"
   val enumeratum = "1.5.12"
   val circe = "0.9.0"
+  val circeDerivation = "0.9.0-M4"
   val cats = "1.0.1"
   val monix = "2.3.0"
 }
@@ -81,8 +82,7 @@ lazy val jsonrpc = project
       "com.beachape" %% "enumeratum-circe" % "1.5.15",
       "com.lihaoyi" %% "pprint" % "0.5.3",
       "io.circe" %% "circe-core" % V.circe,
-      "io.circe" %% "circe-generic" % V.circe,
-      "io.circe" %% "circe-generic-extras" % V.circe,
+      "io.circe" %% "circe-derivation" % V.circeDerivation,
       "io.circe" %% "circe-parser" % V.circe,
       "io.monix" %% "monix" % V.monix,
       "org.typelevel" %% "cats-core" % V.cats

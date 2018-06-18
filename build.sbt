@@ -33,6 +33,7 @@ inThisBuild(
       )
     ),
     scalaVersion := V.scala212,
+    crossScalaVersions := List(V.scala211, V.scala212),
     scalacOptions ++= List(
       "-Yrangepos",
       "-Yrangepos",
@@ -73,13 +74,10 @@ lazy val V = new {
 
 lazy val jsonrpc = project
   .settings(
-    crossScalaVersions := List(V.scala211, V.scala212),
     // NOTE: there are plans to drop most of these dependencies
     // https://github.com/scalameta/metals/issues/285
     libraryDependencies ++= List(
       "com.outr" %% "scribe" % "2.5.0",
-      "com.beachape" %% "enumeratum" % V.enumeratum,
-      "com.beachape" %% "enumeratum-circe" % V.enumeratumCirce,
       "io.circe" %% "circe-core" % V.circe,
       "io.circe" %% "circe-derivation" % V.circeDerivation,
       "io.circe" %% "circe-parser" % V.circe,
@@ -90,6 +88,9 @@ lazy val jsonrpc = project
 
 lazy val lsp4s = project
   .settings(
-    crossScalaVersions := List(V.scala211, V.scala212)
+    libraryDependencies ++= List(
+      "com.beachape" %% "enumeratum" % V.enumeratum,
+      "com.beachape" %% "enumeratum-circe" % V.enumeratumCirce
+    )
   )
   .dependsOn(jsonrpc)

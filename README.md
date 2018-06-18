@@ -4,7 +4,7 @@
 # lsp4s
 
 This is a Scala implementation for [JSON-RPC][] and the [Language Server
-Protocol][lsp] with a focus on compile-time safety and extensibility. This
+Protocol][lsp] with a emphasis on compile-time safety and extensibility. This
 project contains two modules:
 
 - `jsonrpc`: core data structures and client/server implementations for JSON-RPC
@@ -44,7 +44,7 @@ The `lsp4s` module has the following dependencies:
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/lsp4s_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/lsp4s_2.12)
 
-To implement a language server, add the following dependency you need.
+To implement a language server with lsp4s, add the following dependency:
 
 ```scala
 libraryDependencies += "org.scalameta" %% "lsp4s" % "VERSION"
@@ -192,7 +192,7 @@ or do JSON-RPC on the JVM. It's a pure Java implementation with a smaller
 dependency footprint than lsp4s. It's used by the official Java Language Server
 and is actively maintained. Before starting lsp4s, we made several attempts to
 use lsp4j but encountered cryptic runtime-reflection errors that we struggled to
-resolve. The focus on compile-time safety in lsp4s is partly motivated by this
+resolve. The emphasis in lsp4s on compile-time is partly motivated by this
 experience.
 
 For a Scala alternative, there is [dragos-vscode-scala][] that builds on top of

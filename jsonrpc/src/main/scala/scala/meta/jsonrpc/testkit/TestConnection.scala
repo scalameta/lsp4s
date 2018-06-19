@@ -10,7 +10,7 @@ import scala.meta.jsonrpc.LanguageClient
 import scala.meta.jsonrpc.Services
 
 /**
- * A bi-directional connection between a two running JSON-RPC entities named Alice and Bob.
+ * A bi-directional connection between two running JSON-RPC entities named Alice and Bob.
  *
  * @param alice the running instance for Alice.
  * @param aliceIO the input/output streams for Alice.

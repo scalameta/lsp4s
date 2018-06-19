@@ -2,20 +2,18 @@ package tests
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import minitest.SimpleTestSuite
-import monix.eval.Task
-import monix.execution.Cancelable
-import scala.meta.jsonrpc._
 import monix.execution.Scheduler.Implicits.global
 import scala.collection.JavaConverters._
 import scala.concurrent.Promise
-import scala.meta.jsonrpc.Response.Success
+import scala.meta.jsonrpc._
 import scala.meta.jsonrpc.testkit._
 import scribe.Logger
 
 /**
  * Tests the following sequence:
  *
- * C         S
+ * Alice     Bob
+ * =============
  * |  Ping   |
  * | ------> |
  * |  Pong   |
@@ -60,20 +58,18 @@ object PingPongSuite extends SimpleTestSuite {
         Pong.notify(message.replace("Ping", "Pong"))(client)
       }
     }
-    val ClientServer(client, server) =
-      ClientServer(pongBack, pongBack)
+    val conn = TestConnection(pongBack, pongBack)
     for {
-      _ <- Ping.notify("Ping from client")(client.client)
-      _ <- Ping.notify("Ping from server")(server.client)
-      Right(obtained) <- Hello.request("Hello")(client.client).runAsync
+      _ <- Ping.notify("Ping from client")(conn.alice.client)
+      _ <- Ping.notify("Ping from server")(conn.bob.client)
+      Right(helloWorld) <- Hello.request("Hello")(conn.alice.client).runAsync
       _ <- promise.future
     } yield {
-      assertEquals(obtained, "Hello, World!")
+      assertEquals(helloWorld, "Hello, World!")
       val obtainedPongs = pongs.asScala.toList.sorted
-      val expectedPongs =
-        List("client", "server").map(name => s"Pong from $name")
-      Cancelable.cancelAll(client :: server :: Nil)
+      val expectedPongs = List("Pong from client", "Pong from server")
       assertEquals(obtainedPongs, expectedPongs)
+      conn.cancel()
     }
   }
 

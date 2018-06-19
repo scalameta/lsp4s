@@ -48,7 +48,6 @@ inThisBuild(
     ),
     libraryDependencies += "io.monix" %% "minitest" % "2.1.1" % "test",
     testFrameworks += new TestFramework("minitest.runner.Framework"),
-    parallelExecution.in(Test) := false,
     // faster publishLocal:
     publishArtifact in packageDoc := sys.env.contains("CI"),
     publishArtifact in packageSrc := sys.env.contains("CI"),

@@ -2,10 +2,13 @@ package tests
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import minitest.SimpleTestSuite
+import monix.eval.Task
 import monix.execution.Cancelable
 import scala.meta.jsonrpc._
 import monix.execution.Scheduler.Implicits.global
 import scala.collection.JavaConverters._
+import scala.concurrent.Promise
+import scala.meta.jsonrpc.Response.Success
 import scala.meta.jsonrpc.testkit._
 import scribe.Logger
 
@@ -39,6 +42,7 @@ object PingPongSuite extends SimpleTestSuite {
   private val Hello = Endpoint.request[String, String]("hello")
 
   testAsync("ping pong") {
+    val promise = Promise[Unit]()
     val pongs = new ConcurrentLinkedQueue[String]()
     val services = Services
       .empty(Logger.root)
@@ -47,6 +51,9 @@ object PingPongSuite extends SimpleTestSuite {
       }
       .notification(Pong) { message =>
         assert(pongs.add(message))
+        if (pongs.size() == 2) {
+          promise.complete(util.Success(()))
+        }
       }
     val pongBack: LanguageClient => Services = { client =>
       services.notification(Ping) { message =>
@@ -59,6 +66,7 @@ object PingPongSuite extends SimpleTestSuite {
       _ <- Ping.notify("Ping from client")(client.client)
       _ <- Ping.notify("Ping from server")(server.client)
       Right(obtained) <- Hello.request("Hello")(client.client).runAsync
+      _ <- promise.future
     } yield {
       assertEquals(obtained, "Hello, World!")
       val obtainedPongs = pongs.asScala.toList.sorted

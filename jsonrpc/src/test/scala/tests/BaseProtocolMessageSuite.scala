@@ -88,7 +88,7 @@ object BaseProtocolMessageSuite extends SimpleTestSuite {
       Nil
   )
 
-  test("chunked-property") {
+  test("chunked at every possible offset") {
     0.to(byteArrayDouble.length).foreach { i =>
       // Split the message at offset `i` and emit two chunks
       val buffers =

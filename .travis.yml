@@ -14,7 +14,7 @@ jobs:
     - env: TEST="2.11"
       script: sbt ++2.11.12 test
     - env: TEST="2.12"
-      script: sbt test
+      script: sbt ++2.12.6 test
     - stage: release
       script: travis_wait 60 sbt ci-release
 

@@ -58,5 +58,5 @@ object BaseProtocolMessage {
       in: Observable[ByteBuffer],
       logger: LoggerSupport
   ): Observable[BaseProtocolMessage] =
-    in.executeWithFork.liftByOperator(new BaseProtocolMessageParser(logger))
+    in.executeAsync.liftByOperator(new BaseProtocolMessageParser(logger))
 }

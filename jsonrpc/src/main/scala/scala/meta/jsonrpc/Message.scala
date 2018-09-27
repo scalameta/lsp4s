@@ -5,7 +5,7 @@ import io.circe.Json
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.JsonObject
-import io.circe.derivation.JsonCodec
+import io.circe.derivation.annotations.JsonCodec
 import io.circe.syntax._
 
 import cats.syntax.either._

@@ -64,12 +64,11 @@ skip in publish := true
 lazy val V = new {
   val scala211 = "2.11.12"
   val scala212 = "2.12.6"
-  val enumeratum = "1.5.13"
-  val enumeratumCirce = "1.5.17"
-  val circe = "0.9.3"
-  val circeDerivation = "0.9.0-M4"
-  val cats = "1.1.0"
-  val monix = "2.3.3"
+  val enumeratumCirce = "1.5.18"
+  val circe = "0.10.0"
+  val circeDerivation = "0.10.0-M1"
+  val cats = "1.4.0"
+  val monix = "3.0.0-RC1"
 }
 
 lazy val jsonrpc = project
@@ -79,7 +78,7 @@ lazy val jsonrpc = project
     libraryDependencies ++= List(
       "com.outr" %% "scribe" % "2.6.0",
       "io.circe" %% "circe-core" % V.circe,
-      "io.circe" %% "circe-derivation" % V.circeDerivation,
+      "io.circe" %% "circe-derivation-annotations" % V.circeDerivation,
       "io.circe" %% "circe-parser" % V.circe,
       "io.monix" %% "monix" % V.monix,
       "org.typelevel" %% "cats-core" % V.cats
@@ -89,7 +88,6 @@ lazy val jsonrpc = project
 lazy val lsp4s = project
   .settings(
     libraryDependencies ++= List(
-      "com.beachape" %% "enumeratum" % V.enumeratum,
       "com.beachape" %% "enumeratum-circe" % V.enumeratumCirce
     )
   )

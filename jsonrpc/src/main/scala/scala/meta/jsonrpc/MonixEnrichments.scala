@@ -40,7 +40,7 @@ object MonixEnrichments {
 
   implicit class XtensionObservable[A](val obs: Observable[A]) extends AnyVal {
 
-    def focus[B](f: A => B): Observable[B] =
+    def focus[B: cats.Eq](f: A => B): Observable[B] =
       obs.distinctUntilChangedByKey(f).map(f)
 
     def toFunction0()(implicit s: Scheduler): () => A =

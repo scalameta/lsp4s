@@ -1,7 +1,7 @@
 package scala.meta.lsp
 
 import io.circe.Json
-import io.circe.derivation.JsonCodec
+import io.circe.derivation.annotations.JsonCodec
 
 /**
  * Parameters and types used in the `initialize` message.

@@ -4,7 +4,7 @@ import cats.syntax.either._
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.Json
-import io.circe.derivation.JsonCodec
+import io.circe.derivation.annotations.JsonCodec
 
 /**
  * Position in a text document expressed as zero-based line and character offset.

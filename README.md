@@ -123,9 +123,12 @@ val scheduler =
 // System.out but to connect with for example sbt server you use sockets: https://github.com/sbt/ipcsocket
 val io = new InputOutput(System.in, System.out)
 
+
 // Construct logger that appends to file, don't log to stdout since that is reserved for
 // JSON-RPC communication.
-val logger = Logger("my-logger").withHandler(writer = scribe.writer.FileWriter.simple())
+val logPath = java.nio.file.Paths.get("my-logger.log").toAbsolutePath
+val fileWriter = scribe.writer.FileWriter().path(timestamp => logPath).autoFlush
+val logger = Logger("my-logger").orphan().withHandler(writer = fileWriter)
 
 // Establish a connection with the client, this fires up the server and starts listening for
 // requests and notifications until the input stream closes.
@@ -159,8 +162,8 @@ libraryDependencies += "org.scalameta" %% "jsonrpc" % "VERSION"
 
 The modules `lsp4s` and `jsonrpc` are used in the following projects:
 
-- [Metals][]: a language server for Scala that uses `lsp4s` to communicate with editors
-  and `jsonrpc` to communicate with sbt server as a client.
+- [Metals][]: a language server for Scala that uses `lsp4s` to communicate with
+  editors and `jsonrpc` to communicate with sbt server as a client.
 - [IntelliJ Scala][]: the most widely used IDE for Scala uses `jsonrpc` to
   communicate with build tools through the Build Server Protocol.
 - [Bloop][]: Scala build server and command-line tool for fast compile and test
@@ -197,20 +200,20 @@ or do JSON-RPC on the JVM. It's a pure Java implementation with a smaller
 dependency footprint than lsp4s. It's used by the official Java Language Server
 and is actively maintained. Before starting lsp4s, we made several attempts to
 use lsp4j but encountered cryptic runtime-reflection errors that we struggled to
-resolve. The emphasis in lsp4s on compile-time safety is partly motivated by this
-experience.
+resolve. The emphasis in lsp4s on compile-time safety is partly motivated by
+this experience.
 
 For a Scala alternative, there is [dragos-vscode-scala][] that builds on top of
 [scala-json-rpc][] and uses the standard library `Future`. We used
 dragos-vscode-scala for several months and it was helpful in getting us
 off-the-ground early on. In fact, the lsp4s JSON-RPC header parser is a fork of
-the header parser in dragos-scode-scala (see [NOTICE](NOTICE.md)). As our
-usage of dragos-vscode-scala grew we found it difficult to add new LSP endpoints
-such as `workspace/applyEdit` or build new protocols such as [BSP][]. We encountered
-several times cryptic runtime errors during manual integration testing, which hurt
-our productivity. The lsp4s `Endpoint` abstraction builds on top of this experience by
-reducing ceremony for adding new endpoints while lowering the risk of serialization
-errors at runtime.
+the header parser in dragos-scode-scala (see [NOTICE](NOTICE.md)). As our usage
+of dragos-vscode-scala grew we found it difficult to add new LSP endpoints such
+as `workspace/applyEdit` or build new protocols such as [BSP][]. We encountered
+several times cryptic runtime errors during manual integration testing, which
+hurt our productivity. The lsp4s `Endpoint` abstraction builds on top of this
+experience by reducing ceremony for adding new endpoints while lowering the risk
+of serialization errors at runtime.
 
 [scala-json-rpc]: https://github.com/dhpiggott/scala-json-rpc
 [dragos-vscode-scala]: https://github.com/dragos/dragos-vscode-scala

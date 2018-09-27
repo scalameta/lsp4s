@@ -77,7 +77,7 @@ lazy val jsonrpc = project
     // NOTE: there are plans to drop most of these dependencies
     // https://github.com/scalameta/metals/issues/285
     libraryDependencies ++= List(
-      "com.outr" %% "scribe" % "2.5.0",
+      "com.outr" %% "scribe" % "2.6.0",
       "io.circe" %% "circe-core" % V.circe,
       "io.circe" %% "circe-derivation" % V.circeDerivation,
       "io.circe" %% "circe-parser" % V.circe,

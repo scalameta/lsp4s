@@ -6,7 +6,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import monix.execution.Ack
 import monix.execution.Scheduler
-import monix.reactive.observables.ObservableLike.Operator
+import monix.reactive.Observable.Operator
 import monix.reactive.observers.Subscriber
 import scribe.LoggerSupport
 

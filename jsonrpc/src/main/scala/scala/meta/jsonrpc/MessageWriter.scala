@@ -73,8 +73,8 @@ object MessageWriter {
         headerOut.write("\r\n")
     }
     headerOut.write("\r\n")
-    headerOut.flush()
     out.write(message.content)
+    out.flush()
     val buffer = ByteBuffer.wrap(out.toByteArray, 0, out.size())
     buffer
   }

@@ -16,7 +16,7 @@ import io.circe.derivation.annotations.JsonCodec
      * The rootPath of the workspace. Is null
      * if no folder is open.
      */
-    rootPath: String,
+    rootPath: Option[String],
     /**
      * The capabilities provided by the client (editor)
      */
